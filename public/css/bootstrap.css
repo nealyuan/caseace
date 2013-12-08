@@ -1098,6 +1098,7 @@ input,
 textarea,
 .uneditable-input {
 /*  width: 620px;*/
+  width: 100%;
 }
 
 textarea {
