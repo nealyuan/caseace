@@ -1,0 +1,49 @@
+<% include header.ejs %>
+<% include password.ejs %>
+<% include navbar.ejs %>
+
+
+<div class="container">
+
+<form action="/gradeAnswersAction" method="POST">
+<table border="1">
+	<tr>
+		<td><b>Username</b></td>
+		<td><b>Diagnosis</b></td>
+		<td><b>Explanation</b></td>
+		<td><b>Score</b></td>
+		<td><b>Superb explanation? (1 for yes)</b></td>
+	</tr>
+
+<% for (var i = 0; i < Answers.length; i++) { %>
+	<% var usernamePoints = Answers[i].username + "points"; %>
+	<% var usernameSuperbExp = Answers[i].username + "superbExp"; %>
+	<tr>
+	  <td><%= Answers[i].username %></td>
+	  <td><%= Answers[i].diagnosisAnswer %></td>
+	  <td><%= Answers[i].explanation %></td>
+	<td>
+	  	<label class="control-label" for=<%= usernamePoints %> >
+		</label>
+		<input type="number" name=<%= usernamePoints %> size="20" min="0">
+	</td>
+	<td>
+	  	<label class="control-label" for=<%= usernameSuperbExp %> >
+		</label>
+		<input type="number" name=<%= usernameSuperbExp %> size="20" min="0" max="1" value="0">
+	</td>
+	</tr>
+<% } %>
+
+</table>
+
+		<label class="control-label" for="totalPoints">
+		How many total points were possible?
+		</label>
+		<input type="number" name="totalPoints" size="2" min="0">
+		<br>
+		<input class="btn" type="submit">
+</form>
+</div>
+
+<% include footer.ejs %>

@@ -1,0 +1,65 @@
+<% include header.ejs %>
+<% include navbar.ejs %>
+
+<div class="container">
+
+<% if (Case.FlexibleText1 != "" && Case.FlexibleText1 != "<br>" && Case.FlexibleText1 != null) { %>
+<p><%- Case.FlexibleText1%></p>
+<% } %>
+
+<% if (Case.FlexibleText2 != "" && Case.FlexibleText2 != "<br>" && Case.FlexibleText2 != null) { %>
+<p><%- Case.FlexibleText2%></p>
+<% } %>
+
+<% if (Case.HPI != "" && Case.HPI != "<br>" && Case.HPI != null) { %>
+<h2>History of Present Illness</h2>
+<p><%- Case.HPI%></p>
+<% } %>
+
+<% if (Case.PMH != "" && Case.PMH != "<br>" && Case.PMH != null) { %>
+<h2>Past Medical History</h2>
+<p><%- Case.PMH%></p>
+<% } %>
+
+<% if (Case.MedsAllergies != "" && Case.MedsAllergies != "<br>" && Case.MedsAllergies != null) { %>
+<h2>Meds/Allergies</h2>
+<p><%- Case.MedsAllergies%></p>
+<% } %>
+
+<% if (Case.SHxHRB != "" && Case.SHxHRB != "<br>" && Case.SHxHRB != null) { %>
+<h2>Social History/Health-Related Behaviors</h2>
+<p><%- Case.SHxHRB%></p>
+<% } %>
+
+<% if (Case.FHx != "" && Case.FHx != "<br>" && Case.FHx != null) { %>
+<h2>Family History</h2>
+<p><%- Case.FHx%></p>
+<% } %>
+
+<% if (Case.PE != "" && Case.PE != "<br>" && Case.PE != null) { %>
+<h2>PE</h2>
+<p><%- Case.PE%></p>
+<% } %>
+
+<% if (Case.LabsStudies != "" && Case.LabsStudies != "<br>" && Case.LabsStudies != null) { %>
+<h2>Labs/Studies</h2>
+<p><%- Case.LabsStudies%></p>
+<% } %>
+
+<% if (Case.Imaging != "" && Case.Imaging != "<br>" && Case.Imaging != null) { %>
+<h2>Imaging</h2>
+<p><%- Case.Imaging%><br></p>
+<% } %>
+
+<p>(Citation to follow in solution)</p>
+
+<% if (Case.Question != "" && Case.Question != "<br>" && Case.Question != null) { %>
+<p><b><%- Case.Question%></b></p>
+<% } %>
+
+</div>
+
+<% include currentCaseForm2.html %>
+<% include footer.ejs %>
+
+

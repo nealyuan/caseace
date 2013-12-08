@@ -1,0 +1,21 @@
+<% include header.ejs %>
+<% include navbar.ejs %>
+<script src="public/js/d3.v3.min.js"></script>
+
+<table>
+<tr>
+<td style='white-space:nowrap; padding-left:390px'></td>
+<td class="tab"><input type='button' id='t' value='Total Points' class="abtn" onclick="activateButtonT()"></input></td>
+<td class="tab"><input type='button' id='s' value='Stellar Explanations' class="btn" onclick="activateButtonS()"></input></td>
+<td class="tab"><input type='button' id='a' value='Accuracy' class="btn" onclick="activateButtonA()"></input><td>
+<td style='width:100%'></td>
+</tr>
+</table>
+
+<script>
+var rank = <%- ranks %>
+</script>
+
+<script src="public/js/leaderboard.js"></script>
+  
+<% include footer.ejs %>

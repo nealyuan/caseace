@@ -1,0 +1,142 @@
+var rank = [
+  {
+    "Name":"Ginger's Angels",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"1"
+  },
+  {
+    "Name":"Franz Beckenbauer",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"1"
+  },
+  {
+    "Name":"Princess Jasmine",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"1"
+  },
+  {
+    "Name":"Kiddecks",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"3373",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"Wyle D. Ges",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"TurtleDuck",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"Cool beans",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"inigo montoya",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"nacandcheese363",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"clear eyes, full hearts",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"radioactive muffin",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"cashinginonmyPCHpearls",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"KSunday09",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"Mrs. Brian Schwartz",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"1"
+  },
+  {
+    "Name":"john danovic",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"GoBears",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"AndrewLeeIsMyHero",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  },
+  {
+    "Name":"men women or both",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"1"
+  },
+  {
+    "Name":"sf123456",
+    "Correct":"1",
+    "Total":"1",
+    "Accuracy":"1",
+    "Explanation":"0"
+  }
+];

@@ -1,0 +1,74 @@
+<body>
+ <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="brand" href="/">Case Ace</a>
+                <% if (header != 'CaseAce') { %>
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <% if (header == 'Leader Board') { %>
+                        <li class="active">
+                        <% }
+                           else { %>
+                        <li>
+                        <% } %>
+                            <a href="/leaderboard">Leader Board</a>
+                        </li>
+
+                        <% if (header == 'Current Case') { %>
+                        <li class="active">
+                        <% }
+                           else { %>
+                        <li>
+                        <% } %>
+                            <a href="/currentcase">Current Case</a>
+                        </li>
+
+                        <% if (header == 'Past Cases') { %>
+                        <li class="active">
+                        <% }
+                           else { %>
+                        <li>
+                        <% } %>
+                            <a href="/pastcases">Past Cases</a>
+                        </li>
+                    </ul>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <div class="hero-unit">
+        <h1>
+            <%= header%>
+        </h1>
+        <% if (header == 'CaseAce') {%>
+        <p>
+        Clinical case challenges for medical students
+        </p>
+        <% } %>
+        
+        <% if (header == 'Leader Board') {%>
+        <p>
+        Hats off to our top case solvers!
+        </p>
+        <% } %>
+        
+        <% if (header == 'Current Case') {%>
+        <p>
+        Submit answers by 10AM Sunday
+        </p>
+        <% } %>
+
+        <% if (header == 'Past Cases') {%>
+        <p>
+        Solutions and Explanations
+        </p>
+        <% } %>
+        
+    </div>
