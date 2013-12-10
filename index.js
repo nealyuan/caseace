@@ -39,16 +39,16 @@ app.get('/leaderboard', function(req, res) {
   
   var title = 'Leader Board'
   var header = 'Leader Board';
-  //Retrieve all of the individual scores from MongoDB in the collection Rank
+  //Retrieve all of the individual scores from MongoDB in the collection Users
   MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
-  db.collection('Rank', function(err, collection) { //returns the collection 'Rank'
-      collection.find().toArray(function(err, ranks) { //ranks is an array of objects, each object is a person and their scores
+  db.collection('Users', function(err, collection) { //returns the collection 'Users'
+      collection.find().toArray(function(err, users) { //users is an array of objects, each object is a user and their scores
         res.render('leaderboard', {
           locals: {
             'title': title,
             'header': header,
-            'ranks': JSON.stringify(ranks) //we need to take the array of objects and turn it into JSON
+            'users': JSON.stringify(users) //we need to take the array of objects and turn it into JSON
           }
         })
       })
@@ -132,6 +132,20 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   })
 })
 
+//This route shows all the admin links on a single page
+app.get('/admin', function(req, res) {
+  
+  var title = 'Admin Panel'
+  var header = 'Admin Panel';
+
+  res.render('admin.ejs', {
+    locals: {
+      'title': title,
+      'header': header,
+    }
+})
+}) 
+
 //This route allows user to choose the date of the case whose answers the user wants to grade
 app.get('/gradeAnswers', function(req, res) {
   
@@ -173,14 +187,14 @@ app.post('/gradeAnswers2', function(req, res) {
 //This route takes answers inputed after /gradeAnswers and then updates user tallies in db
 app.post('/gradeAnswersAction', function(req, res) {
 var responses = req.body; //responses is an object with properties being usernamePoints or usernameSuperbExp and values being numbers
-var usernamesRaw = [];//an array of the usernames that are raw from the response and need to be processed to get rid of "points" nad "superbExp" from the end
+var usernamesRaw = [];//an array of the usernames that are raw from the response and need to be processed to get rid of "points" and "superbExp" from the end
 var usernames = [];//an array of the cleaned up usernames
 var points = [];//an array of points in the format [user1Points, user1SuperbExp, user2Points, user2SuperbExp,...]
-var totalPoints = points[points.length-1];
+var totalPoints = parseInt(req.body.totalPoints);
 
 for(var property in responses) {
   usernamesRaw.push(property);
-  points.push(responses[property]);
+  points.push(parseInt(responses[property]));
 }
 
 //get rid of the last entry in usernamesRaw and points, b/c that entry contains total points
@@ -190,45 +204,50 @@ points = points.slice(0, points.length-1);
 //now clean up the raw username array
 for (var i = 0; i < usernamesRaw.length-1; i+=2){ //you iterate by 2 b/c there's a double for each username with usernamePoints and usernameSuperbExp
   var usernameLength = usernamesRaw[i].length - 6;
-  usernames.push(usernamesRaw[i].slice(0,usernameLength)); //slice of the "Points" from "usernamePoints" to be left with just "username"
+  usernames.push(usernamesRaw[i].slice(0,usernameLength)); //slice off the "Points" from "usernamePoints" to be left with just "username"
 }
 
 MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
   db.createCollection('Users', {w:1}, function(err, collection) {
     var userCollection = db.collection('Users');
+
     for (var i = 0; i < usernames.length; i++){
-      var username = usernames[i], numCorrect = 0, numTotal = 0, superbExplanations = 0;
-    //In "userCollection", find the username, if the username doesn't exist, create new entry
-    //Also find and store the numCorrect, numtotal, superbExplanations as variables
-      userCollection.findOne({'username':usernames[i]}, function(err, user){
+      storeUserPts(usernames[i], points[2*i], points[2*i+1]);
+    }
+    function storeUserPts(username, numCorrectPts, superbExplanationsPts){
+      var numCorrect = 0, numTotal = 0, superbExplanations = 0;
+      //In "userCollection", find the username, if the username doesn't exist, create new entry
+      //Also find and store the numCorrect, numtotal, superbExplanations as variables
+      userCollection.findOne({'username':username}, function(err, user){
         if(!user){
-          console.log(username);
           userCollection.insert({'username':username, 'numCorrect':0, 'numTotal':0, 'superbExplanations':0}, {w:1}, function(err, result){
             if (err){throw err;}
             })
         }
-        else{console.log('user does exist');}
-
-        //usernames = [user1, user3, user2], but when this runs it displays and stores three 'user2's prob b/c of async?
-
-/*        if (err){
-          userCollection.insert({'username': usernames[i], 'numCorrect':0, 'numTotal':0, 'superbExplanations':0}, {w:1}, function(err, result){
-            if (err){throw err;}
-            var numCorrect = 0, numTotal = 0, superbExplanations = 0;
-            })
-        }
         else {
-          var numCorrect = user.numCorrect, numTotal = user.numTotal, superbExplanations = user.superbExplanations;
+          numCorrect = user.numCorrect, numTotal = user.numTotal, superbExplanations = user.superbExplanations;
         }
-        userCollection.update({'username':usernames[i]}, {$set:{'numCorrect':points[2*i-1]+numCorrect, 'numTotal':totalPoints+numTotal, 'superbExplanations':points[2*i]+superbExplanations}}, {w:1}, function(err, result){
+        //add in the new points from the grading to the past point tallies
+        numCorrect += numCorrectPts;
+        numTotal += totalPoints;
+        superbExplanations += superbExplanationsPts;
+
+        //update the points in the database for the user
+        userCollection.update({'username':username}, {$set:{'numCorrect':numCorrect, 'numTotal':numTotal, 'superbExplanations':superbExplanations}}, {w:1}, function(err, result){
           if (err){throw err;}
-        })*/
+          res.render('caseStoreSuccess', {
+            locals: {
+              'title': 'Grading Submitted',
+              'header': 'Grading Submitted',
+            }
+          })        
+        })
       })
     }
-  })
-})
 
+  })
+  })
 })
 
 
@@ -409,7 +428,7 @@ app.get('/storeSolvers', function(req, res) {
 app.post('/storeSolversAction', function(req, res) {
 
 var title = 'Answerer Storage Successful'
-var header = 'Success'
+var header = 'Answerer Storage Successful'
 var Date = req.body.Date,
 FirstSolvers = req.body.FirstSolvers,
 SuperbExplanations = req.body.SuperbExplanations,

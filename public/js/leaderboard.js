@@ -25,13 +25,13 @@ var svg = d3.select("body").append("svg")
 	var text = element.enter().append("text") //names
 			.attr("dx", function(d){return 100})
 			.attr("dy", function(d,i){return rank.indexOf(d)*30 + 20 })
-			.text(function(d){return d.Name})
+			.text(function(d){return d.username})
 			.style("fill", "#006dcc")
 					
 	var text2 = element.enter().append("text") //number E.g. total number of cases, % accuracy
 			.attr("dx", function(d){return 650})
 			.attr("dy", function(d,i){return rank.indexOf(d)*30 + 20 })
-			.text(function(d){ return d.Correct; })
+			.text(function(d){ return d.numCorrect; })
 			
 	svg.append("line") //Line on top of table
 	  .attr("x1", 70)
@@ -63,7 +63,7 @@ var svg = d3.select("body").append("svg")
 				text2.transition()
 					.duration(500)
 					  .attr("dy", function(d,i) { return rank.indexOf(d)*30 + 20})
-					  .text(function(d){return +d.Explanation;});				  
+					  .text(function(d){return +d.superbExplanations;});				  
 				type = 2;
 	});
 				
@@ -78,7 +78,7 @@ var svg = d3.select("body").append("svg")
 				text2.transition()
 					.duration(500)
 					  .attr("dy", function(d,i) { return rank.indexOf(d)*30 + 20})
-					  .text(function(d){return +d.Correct;});
+					  .text(function(d){return +d.numCorrect;});
 					  
 				type = 0;
 	});	
@@ -92,7 +92,7 @@ var svg = d3.select("body").append("svg")
 				text2.transition()
 					.duration(500)
 					  .attr("dy", function(d,i) { return rank.indexOf(d)*30 + 20})
-					  .text(function(d){return percent(+d.Correct/+d.Total);});
+					  .text(function(d){return percent(+d.numCorrect/+d.numTotal);});
 					  
 				
 				type = 1;
@@ -114,7 +114,7 @@ function totalSort(array) {
   while (m>=0) {
     n = m;
 	while(n>=0){
-		if(+array[n].Correct < +array[m].Correct ){
+		if(+array[n].numCorrect < +array[m].numCorrect ){
 		     t = array[m], array[m] = array[n], array[n] = t;
 		}
 		n--;
@@ -129,7 +129,7 @@ function accuSort(array) {
   while (m>=0) {
     n = m;
 	while(n>=0){
-		if((+array[n].Correct/+array[n].Total) < (+array[m].Correct/+array[m].Total) ){
+		if((+array[n].numCorrect/+array[n].numTotal) < (+array[m].numCorrect/+array[m].numTotal) ){
 		     t = array[m], array[m] = array[n], array[n] = t;
 		}
 		n--;
@@ -144,7 +144,7 @@ function streak(array) {
   while (m>=0) {
     n = m;
 	while(n>=0){
-		if(+array[n].Explanation < +array[m].Explanation ){
+		if(+array[n].superbExplanations < +array[m].superbExplanations ){
 		     t = array[m], array[m] = array[n], array[n] = t;
 		}
 		n--;
