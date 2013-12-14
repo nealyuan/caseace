@@ -1,0 +1,81 @@
+<% include header.ejs %>
+<% include navbar.ejs %>
+<div class="container">
+
+<p><b>This is a preview of what the case content currently looks like</b>
+
+<form action="/editCaseAction" method="POST">
+	<label class="control-label" for = "Date">
+	</label>
+	<input type="hidden" name="Date" value=<%- Case.Date %>>
+	
+	<button type="submit">Edit This Case</button>
+</form>
+
+<% if (Case.FlexibleText1 != "" && Case.FlexibleText1 != "<br>" && Case.FlexibleText1 != null) { %>
+<p><%- Case.FlexibleText1%></p>
+<% } %>
+
+<% if (Case.FlexibleText2 != "" && Case.FlexibleText2 != "<br>" && Case.FlexibleText2 != null) { %>
+<p><%- Case.FlexibleText2%></p>
+<% } %>
+
+<% if (Case.HPI != "" && Case.HPI != "<br>" && Case.HPI != null) { %>
+<h2>History of Present Illness</h2>
+<p><%- Case.HPI%></p>
+<% } %>
+
+<% if (Case.PMH != "" && Case.PMH != "<br>" && Case.PMH != null) { %>
+<h2>Past Medical History</h2>
+<p><%- Case.PMH%></p>
+<% } %>
+
+<% if (Case.MedsAllergies != "" && Case.MedsAllergies != "<br>" && Case.MedsAllergies != null) { %>
+<h2>Meds/Allergies</h2>
+<p><%- Case.MedsAllergies%></p>
+<% } %>
+
+<% if (Case.SHxHRB != "" && Case.SHxHRB != "<br>" && Case.SHxHRB != null) { %>
+<h2>Social History/Health-Related Behaviors</h2>
+<p><%- Case.SHxHRB%></p>
+<% } %>
+
+<% if (Case.FHx != "" && Case.FHx != "<br>" && Case.FHx != null) { %>
+<h2>Family History</h2>
+<p><%- Case.FHx%></p>
+<% } %>
+
+<% if (Case.PE != "" && Case.PE != "<br>" && Case.PE != null) { %>
+<h2>PE</h2>
+<p><%- Case.PE%></p>
+<% } %>
+
+<% if (Case.LabsStudies != "" && Case.LabsStudies != "<br>" && Case.LabsStudies != null) { %>
+<h2>Labs/Studies</h2>
+<p><%- Case.LabsStudies%></p>
+<% } %>
+
+<% if (Case.Imaging != "" && Case.Imaging != "<br>" && Case.Imaging != null) { %>
+<h2>Imaging</h2>
+<p><%- Case.Imaging%><br></p>
+<% } %>
+
+<% if (Case.Question != "" && Case.Question != "<br>" && Case.Question != null) { %>
+<p><b><%- Case.Question%></b></p>
+<% } %>
+
+<h2>Answer</h2>
+<p>Congratulations to <b><%- Case.FirstSolvers%></b> for being the first three to solve this case!</p>
+<p>Superb explanations were awarded to <b><%- Case.SuperbExplanations%></b></p>
+
+<p><b><%- Case.Diagnosis %></b><br>
+<%- Case.FurtherDetails %></p>
+
+<p>Explanation by <b><%- Case.StudentWithExplanation %></b><br>
+<%- Case.StudentExplanation %></p>
+
+<p><%- Case.KeyPointsExplanation %></p>
+
+</div>
+
+<% include footer.ejs %>

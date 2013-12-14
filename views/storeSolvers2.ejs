@@ -1,0 +1,40 @@
+<% include header.ejs %>
+<% include password.ejs %>
+<% include navbar.ejs %>
+
+<div class="container">
+
+<form action="/storeSolversAction" method="POST">
+
+    <label class="control-label" for="Date">
+      Date that Case debuted (if calendar doesn't display in your browser, enter date in the format "yyyy-mm-dd")
+    </label>
+	<input type="date" name="Date"><br>	
+
+	<label class="control-label" for="FirstSolvers">
+	First people to solve this case
+	</label>
+	<input type="text" name="FirstSolvers"><br>
+
+	<label class="control-label" for="SuperbExplanations">
+	Usernames of students with superb explanations
+	</label>
+	<input type="text" name="SuperbExplanations"><br>
+
+	<label class="control-label" for="StudentWithExplanation">
+	Username of the student whose explanation you'd like to use
+	</label>
+	<input type="text" name="StudentWithExplanation"><br>
+
+	<label class="control-label" for="StudentExplanation">
+	Student's Explanation
+	</label>
+	<textarea name="StudentExplanation"></textarea><br>
+
+	<input class="btn" type="submit">
+
+</form>
+
+</div>
+
+<% include footer.ejs %>
