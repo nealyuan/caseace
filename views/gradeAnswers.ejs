@@ -25,7 +25,7 @@
 	<td>
 	  	<label class="control-label" for=<%= usernamePoints %> >
 		</label>
-		<input type="number" name=<%= usernamePoints %> size="20" min="0">
+		<input type="number" name=<%= usernamePoints %> size="20" min="0" value="0">
 	</td>
 	<td>
 	  	<label class="control-label" for=<%= usernameSuperbExp %> >
@@ -40,7 +40,9 @@
 		<label class="control-label" for="totalPoints">
 		How many total points were possible?
 		</label>
-		<input type="number" name="totalPoints" size="2" min="0">
+		<input type="number" name="totalPoints" size="2" min="0" value="1">
+		<br>
+		<input type="hidden" name="Date" value=<%= Date %>>
 		<br>
 		<input class="btn" type="submit">
 </form>

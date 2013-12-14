@@ -4,13 +4,16 @@ var express = require('express');
 var app = express();
 var _ = require('lodash');
 var MongoClient = require('mongodb').MongoClient;
+var async = require('async');
 
 //configuration needed for using EJS
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use('/public', express.static(__dirname + '/public')); //public contains the style sheets
-  app.use(express.bodyParser());
+  /*app.use(express.bodyParser());*/
+  app.use(express.json());
+  app.use(express.urlencoded());
 });
 
 //Routes
@@ -64,18 +67,28 @@ app.get('/currentcase', function(req, res) {
   //Retrieve the case from MongoDB collection 'Cases' that matches today's date
   MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
-  db.collection('Cases', function(err, collection) { //returns the collection 'pastCases'
+  db.collection('Cases', function(err, collection) { //returns the collection 'Cases'
     collection.findOne({'CurrentCase':'yes'}, function(err, item){//find just one item/case that has the CurrentCase field = "yes"
+      if(!item){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry. Looks like a case has not yet been designated as the Current Case.'
+          }
+        })
+      }
+      else {
         res.render('currentCase', {
           locals: {
             'title': title,
             'header': header,
             'Case': item
           }
-
         })
-      })
+      }
     })
+  })
   })
 })
 
@@ -90,16 +103,26 @@ app.get('/pastcases', function(req, res) {
   db.collection('Cases', function(err, collection) { //returns the collection 'Cases'
     //find just one item/case that has CurrentCase field set to 'past'
     collection.findOne({'CurrentCase':'past'}, function(err, item){
+      if(!item){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry. Looks like a case has not yet been designated as the Past Case.'
+          }
+        })
+      }
+      else {
         res.render('pastCases', {
           locals: {
             'title': title,
             'header': header,
             'Case': item
           }
-
         })
-      })
+      }
     })
+  })
   })
 })
 
@@ -112,24 +135,40 @@ var username = req.body.Username,
 email = req.body.Email,
 diagnosisAnswer = req.body.DiagnosisAnswer,
 explanation = req.body.Explanation,
-date = req.body.Date;
+date = req.body.Date,
+submitTime = new Date().getTime(); //time is in milliseconds since Jan 1 1970
 
 //connect to database collection "Answers"
 MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
   db.createCollection('Answers', {w:1}, function(err, collection) {
     var answerCollection = db.collection('Answers');
-    //Add the username, caseDate, diagnosisAnswer and explanation as an independent entry in to the database
-    answerCollection.insert({'date':date,'username':username, 'email':email, 'diagnosisAnswer':diagnosisAnswer, 'explanation':explanation}, {w:1}, function(err, result){
-            res.render('caseStoreSuccess', {
-            locals: {
-              'title': title,
-              'header': header
-              }
-            })
+    //Check to make sure that username and email match
+    answerCollection.findOne({'username':username}, function(err, user){
+      if (user.email != email){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry, your username and email do not match.  Either this username has already been taken or you have entered in a different email.  Please hit the back button and resubmit with a new username or the same email you\'ve used previously.'
+          }
+        })
+      }
+      else {
+        //Add the username, caseDate, diagnosisAnswer and explanation as an independent entry in to the database
+        answerCollection.insert({'date':date,'submitTime':submitTime, 'username':username, 'email':email, 'diagnosisAnswer':diagnosisAnswer, 'explanation':explanation}, {w:1}, function(err, result){
+          res.render('success', {
+          locals: {
+            'title': title,
+            'header': header,
+            'successMessage': 'Your answer has been recorded'
+            }
           })
-      })
+        })
+      }
+    })
   })
+})
 })
 
 //This route shows all the admin links on a single page
@@ -175,7 +214,8 @@ app.post('/gradeAnswers2', function(req, res) {
           locals: {
             'title': title,
             'header': header,
-            'Answers': answers
+            'Answers': answers,
+            'Date': Date
           }
         })
       })
@@ -191,15 +231,18 @@ var usernamesRaw = [];//an array of the usernames that are raw from the response
 var usernames = [];//an array of the cleaned up usernames
 var points = [];//an array of points in the format [user1Points, user1SuperbExp, user2Points, user2SuperbExp,...]
 var totalPoints = parseInt(req.body.totalPoints);
+var Date = req.body.Date; //date of case being graded
+var SuperbExplanations = []; //array containing all users with superb explanations
+var FirstSolvers = []; //array containing first three users who solved case
 
 for(var property in responses) {
   usernamesRaw.push(property);
   points.push(parseInt(responses[property]));
 }
 
-//get rid of the last entry in usernamesRaw and points, b/c that entry contains total points
-usernamesRaw = usernamesRaw.slice(0, usernamesRaw.length-1);
-points = points.slice(0, points.length-1);
+//get rid of the last 2 entries in usernamesRaw and points, b/c those entries contains total points and Date
+usernamesRaw = usernamesRaw.slice(0, usernamesRaw.length-2);
+points = points.slice(0, points.length-2);
 
 //now clean up the raw username array
 for (var i = 0; i < usernamesRaw.length-1; i+=2){ //you iterate by 2 b/c there's a double for each username with usernamePoints and usernameSuperbExp
@@ -207,44 +250,92 @@ for (var i = 0; i < usernamesRaw.length-1; i+=2){ //you iterate by 2 b/c there's
   usernames.push(usernamesRaw[i].slice(0,usernameLength)); //slice off the "Points" from "usernamePoints" to be left with just "username"
 }
 
+//store the firstSolvers as the first 3 usernames in the usernames array that have correct answers
+for (var i = 0, j = 0; j < 3 && i < usernames.length; i++)
+{
+  if (points[2*i] > 0){
+  FirstSolvers.push(usernames[i]);
+  j++;
+  }
+}
+
 MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
   db.createCollection('Users', {w:1}, function(err, collection) {
     var userCollection = db.collection('Users');
 
-    for (var i = 0; i < usernames.length; i++){
-      storeUserPts(usernames[i], points[2*i], points[2*i+1]);
+
+
+    storeEverything(storeSuperbExplanations);
+
+    function storeEverything(callback){
+      //build an array of objects.  Each obj has properties: username, numCorrectPts, superbExplanationsPts
+      var objectArray = [];
+      for (var i = 0; i < usernames.length; i++){
+        //build up the object
+        var userObj = new Object();
+        userObj.username = usernames[i];
+        userObj.numCorrectPts = points[2*i];
+        userObj.superbExplanationsPts = points[2*i+1];
+        objectArray.push(userObj);
+      }
+      //async.each will take objectArray, run storeUserPts on each obj in objectArray, and then execute storeSuperbExplanations function when all callbacks fr various calls of storeUserPts have returned 
+      async.each(objectArray, storeUserPts, callback);
     }
-    function storeUserPts(username, numCorrectPts, superbExplanationsPts){
+
+    function storeUserPts(userObj, callback){ //storeUserPts must have a callback in order to be run by async.each
       var numCorrect = 0, numTotal = 0, superbExplanations = 0;
+      var username = userObj.username, numCorrectPts = userObj.numCorrectPts, superbExplanationsPts = userObj.superbExplanationsPts;
       //In "userCollection", find the username, if the username doesn't exist, create new entry
       //Also find and store the numCorrect, numtotal, superbExplanations as variables
+
       userCollection.findOne({'username':username}, function(err, user){
-        if(!user){
-          userCollection.insert({'username':username, 'numCorrect':0, 'numTotal':0, 'superbExplanations':0}, {w:1}, function(err, result){
-            if (err){throw err;}
-            })
-        }
-        else {
+        //if the user exists, then tally up points from previous
+        if(user) {
           numCorrect = user.numCorrect, numTotal = user.numTotal, superbExplanations = user.superbExplanations;
         }
+
+        //push username into array of SuperbExplanations if user had a superb explanation
+        if (superbExplanationsPts > 0)
+        {
+          SuperbExplanations.push(username);
+        }
+
         //add in the new points from the grading to the past point tallies
         numCorrect += numCorrectPts;
         numTotal += totalPoints;
         superbExplanations += superbExplanationsPts;
 
-        //update the points in the database for the user
-        userCollection.update({'username':username}, {$set:{'numCorrect':numCorrect, 'numTotal':numTotal, 'superbExplanations':superbExplanations}}, {w:1}, function(err, result){
-          if (err){throw err;}
-          res.render('caseStoreSuccess', {
-            locals: {
-              'title': 'Grading Submitted',
-              'header': 'Grading Submitted',
-            }
+        //update the points in the database for the user, "upsert" is used to add an entry if there isn't a user entry with that name
+        userCollection.update({'username':username}, {$set:{'numCorrect':numCorrect, 'numTotal':numTotal, 'superbExplanations':superbExplanations}}, {upsert:true,w:1}, function(err, result){
+          if (err){throw err;}          
+          callback(err);
           })        
-        })
       })
     }
+
+    //Update the list of usernames with SuperbExplanations and FirstSolvers to the case in the db
+    function storeSuperbExplanations(){
+    db.createCollection('Cases', {w:1}, function(err, collection) {
+      var caseCollection = db.collection('Cases');
+      //In "caseCollection", find the case with the Date "Date", then in that document
+      //set the fields to the new values
+      var SuperbExplanationsString = SuperbExplanations.join(", ");
+      var FirstSolversString = FirstSolvers.join(", ");
+      caseCollection.update({'Date':Date}, {$set:{'SuperbExplanations':SuperbExplanationsString, 'FirstSolvers':FirstSolversString}}, {w:1}, function(err, result){
+        if (!err){
+          res.render('success', {
+          locals: {
+            'title': 'Grading Submitted',
+            'header': 'Grading Submitted',
+            'successMessage': 'Your grading has been recorded.  Leaderboard is updated.'
+            }
+          })
+        }
+      })
+    })
+    }    
+
 
   })
   })
@@ -265,8 +356,8 @@ app.get('/setCurrentCase', function(req, res) {
 
 app.post('/setCurrentCaseAction', function(req, res) {
 
-var title = 'Set Current Case Successful'
-var header = 'Success'
+var title = 'Current Case successfully set'
+var header = 'Current Case successfully set'
 var Date = req.body.Date;
 
 //connect to database collection "Cases"
@@ -282,7 +373,8 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
         res.render('caseStoreSuccess', {
           locals: {
             'title': title,
-            'header': header
+            'header': header,
+            'Date': Date
           }
         })
       }
@@ -300,7 +392,8 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
                     res.render('caseStoreSuccess', {
                       locals: {
                         'title': title,
-                        'header': header
+                        'header': header,
+                        'Date': Date
                       }
                     })
                   }
@@ -314,6 +407,53 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   })
 })
 })
+
+app.get('/setPastCase', function(req, res) {
+  
+  var title = 'Set the Past Case'
+  var header = 'Set the Past Case';
+  res.render('setPastCase', {
+    locals: {
+      'title': title,
+      'header': header,
+    }
+  })   
+})
+
+app.post('/setPastCaseAction', function(req, res) {
+
+var title = 'Past Case successfully set'
+var header = 'Past Case successfully set'
+var Date = req.body.Date;
+
+//connect to database collection "Cases"
+MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  if (err){throw err;}
+  db.createCollection('Cases', {w:1}, function(err, collection) {
+    var caseCollection = db.collection('Cases');
+    //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
+    caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
+      if (!err){
+        //Find the case that will be the past case, update the case's field CurrentCase to 'past'
+        caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
+          if (!err){
+            console.log('Past case has been updated');
+            res.render('caseStoreSuccess', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Date': Date
+              }
+            })
+          }
+        })
+      }
+    })
+  })
+})
+})
+
+
 
 app.get('/storeCase', function(req, res) {
   
@@ -364,7 +504,7 @@ if (Case[property] != null)
   var stringArray = Case[property].split("");
   for (var i = 0; i < stringArray.length - 9; i++)
   {
-        if (stringArray.slice(i, i+10).join("") == "<img src=\"")
+        if ((stringArray.slice(i, i+10).join("") == "<img src=\"")&&(stringArray.slice(i-23, i-9).join("") != "data-lightbox="))    //data-lightbox= is to ensure that this isn't already an image tag that's been fixed
         {         
           var url = getURL(stringArray.slice(i+10, stringArray.length));
           var stringToAdd1 = "<a href = \"" + url + "\" data-lightbox=\"images\"><img src=\"" + url + "\" width = \"180\"></a>"; 
@@ -394,22 +534,21 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   if (err){throw err;}
   db.createCollection('Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection('Cases');
-    //Insert the Case into the collection
-    caseCollection.insert(Case, {w:1}, function(err, result){
+    //Insert/Update the Case into the collection
+    caseCollection.update({'Date':Case.Date}, Case, {upsert:true,w:1}, function(err, result){
+      /*caseCollection.save(Case, {safe:true,w:1}, function(err, result){*/
       if (!err){
-        console.log('Case successfully inserted!');
         res.render('caseStoreSuccess', {
           locals: {
             'title': title,
-            'header': header
+            'header': header,
+            'Date': Case.Date
           }
         })
-      }
+      }        
     })
-
   })
 })
-
 })
 
 app.get('/storeSolvers', function(req, res) {
@@ -427,11 +566,9 @@ app.get('/storeSolvers', function(req, res) {
 
 app.post('/storeSolversAction', function(req, res) {
 
-var title = 'Answerer Storage Successful'
-var header = 'Answerer Storage Successful'
+var title = 'Solver Storage Successful'
+var header = 'Solver Storage Successful'
 var Date = req.body.Date,
-FirstSolvers = req.body.FirstSolvers,
-SuperbExplanations = req.body.SuperbExplanations,
 StudentWithExplanation = req.body.StudentWithExplanation,
 StudentExplanation = req.body.StudentExplanation;
 
@@ -442,14 +579,13 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
     var caseCollection = db.collection('Cases');
     //In "caseCollection", find the case with the Date "Date", then in that document
     //set the fields to the new values
-    caseCollection.update({'Date':Date}, {$set:{'FirstSolvers':FirstSolvers,'SuperbExplanations':SuperbExplanations,
-      'StudentWithExplanation':StudentWithExplanation, 'StudentExplanation':StudentExplanation}}, {w:1}, function(err, result){
+    caseCollection.update({'Date':Date}, {$set:{'StudentWithExplanation':StudentWithExplanation, 'StudentExplanation':StudentExplanation}}, {w:1}, function(err, result){
       if (!err){
-        console.log('Solvers successfully inserted!');
         res.render('caseStoreSuccess', {
           locals: {
             'title': title,
-            'header': header
+            'header': header,
+            'Date': Date
           }
         })
       }
@@ -460,33 +596,66 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
 
 })
 
-
-
-/*
-app.get('/storeCase', function(req, res) {
+app.get('/setViewCase', function(req, res) {
   
-  var title = 'Store a Case to Database'
-  var header = 'Store Case';
+  var title = 'Choose a Case to View'
+  var header = 'Choose a Case to View';
+  res.render('setViewCase', {
+    locals: {
+      'title': title,
+      'header': header,
+    }
 
-  //Retrieve pastCases from MongoDB collection pastCases
+  })   
+})
+
+app.post('/setViewCaseAction', function(req, res) {
+
+var title = 'View a Case'
+var header = 'View a Case'
+var Date = req.body.Date;
+
+  //Retrieve the case from MongoDB collection 'Cases' that matches today's date
   MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
-  db.collection('pastCases', function(err, collection) { //returns the collection 'pastCases'
-      collection.find().toArray(function(err, pastCases) {
-
-        res.render('currentCase', {
+  db.collection('Cases', function(err, collection) { //returns the collection 'Cases'
+    collection.findOne({'Date':Date}, function(err, item){
+        res.render('viewCase', {
           locals: {
             'title': title,
             'header': header,
-            'pastCases': pastCases
+            'Case': item
           }
 
         })
       })
     })
   })
+
 })
 
-*/
+app.post('/editCaseAction', function(req, res) {  
+  var title = 'Edit Case'
+  var header = 'Edit Case';
+  var Date = req.body.Date;
+  
+  //Retrieve the case from MongoDB collection 'Cases' that matches today's date
+  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  if (err){throw err;}
+  db.collection('Cases', function(err, collection) { //returns the collection 'Cases'
+    collection.findOne({'Date':Date}, function(err, item){
+        res.render('editCase', {
+          locals: {
+            'title': title,
+            'header': header,
+            'Case': item
+          }
+        })
+      })
+    })
+  })
+
+
+})
 
 app.listen(process.env.PORT || 8000);

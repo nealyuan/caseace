@@ -3,7 +3,13 @@
 
 <div class="container">
 
-<p>Success!</p>
+<form action="/setViewCaseAction" method="POST">
+	<label class="control-label" for = "Date">
+	</label>
+	<input type="hidden" name="Date" value=<%- Date %>>	
+	<button type="submit">Preview/Edit Your Case</button>
+</form>
+
 
 </div>
 

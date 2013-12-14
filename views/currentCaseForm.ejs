@@ -1,3 +1,38 @@
-    <div class="container">
-        <iframe src="https://docs.google.com/forms/d/1o5_EgHX9tFYa55hoora9oahKDz-GX2LDfQJe_SnkpcI/viewform?embedded=true" width="760" height="650" frameborder="0" marginheight="0" marginwidth="0" scrolling="no">Loading...</iframe>
-    </div>
+<div class="container">
+
+
+<form action="/storeAnswerAction" method="POST">
+
+	<label class="control-label" for="Username">
+		Username 
+		<span style="color:#C0C0C0">(To be used on leaderboard. Please be consistent so we can tally your points!)</span>
+	</label>
+	<input type="text" name="Username"><br>
+
+	<label class="control-label" for="Email">
+		Email
+		<span style="color:#C0C0C0">(For confirmation purposes. Info will be kept private)</span>
+	</label>
+	<input type="text" name="Email"><br>
+
+	<label class="control-label" for="DiagnosisAnswer">
+		What is the most likely diagnosis?
+		<span style="color:#C0C0C0">(Please specify one diagnosis only.)</span>
+	</label>
+	<input type="text" name="DiagnosisAnswer"><br>
+
+	<label class="control-label" for="Explanation">
+		Explanation 
+		<span style="color:#C0C0C0">(We'll pick the best explanations and post them for each week)</span>
+	</label>
+	<textarea name="Explanation"></textarea><br>
+
+	<label class="control-label" for = "Date">
+	</label>
+	<input type="hidden" name="Date" value=<%- Case.Date %>>
+	
+	<input class="btn" type="submit">
+
+
+</form>
+</div>
