@@ -70,11 +70,13 @@
 
 <p><b><%- Case.Diagnosis %></b><br>
 <%- Case.FurtherDetails %></p>
+<p>More about this case can be found <a href="<%- Case.Citation%>">here</a></p>
 
-<p>Explanation by <b><%- Case.StudentWithExplanation %></b><br>
+<p><b>Explanation by <%- Case.StudentWithExplanation %></b><br>
 <%- Case.StudentExplanation %></p>
 
-<p><%- Case.KeyPointsExplanation %></p>
+<p><b>Key Points and Explanation</b><br>
+<%- Case.KeyPointsExplanation %></p>
 
 </div>
 

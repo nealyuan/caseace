@@ -208,17 +208,31 @@ app.post('/gradeAnswers2', function(req, res) {
   //Retrieve case answers for desired date from MongoDB collection Answers
   MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
   if (err){throw err;}
-  db.collection('Answers', function(err, collection) { //returns the collection 'Answers'
-    collection.find({'date':Date}).toArray(function(err, answers) { //find all the answers with the case date that matches Date and returns the items in an array
-        res.render('gradeAnswers', {
+/*  db.collection('Answers', function(err, collection) { */
+    var answerCollection = db.collection('Answers');
+    answerCollection.findOne({'date':Date}, function(err, answers) {
+      //Make sure that there are answers for a case on that date
+      if(!answers){
+        res.render('error', {
           locals: {
-            'title': title,
-            'header': header,
-            'Answers': answers,
-            'Date': Date
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'There are currently no answers for a case in the database that debuted on that date'
           }
         })
-      })
+      }
+      else {
+        answerCollection.find({'date':Date}).toArray(function(err, answers) { //find all the answers with the case date that matches Date and returns the items in an array
+          res.render('gradeAnswers', {
+            locals: {
+              'title': title,
+              'header': header,
+              'Answers': answers,
+              'Date': Date
+            }
+          })
+        })
+      }
     })
   })
 })
@@ -365,35 +379,47 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   if (err){throw err;}
   db.createCollection('Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection('Cases');
-    //Make sure that the case that you'd like to set as current isn't already the current case 
-    collection.findOne({'CurrentCase':'yes'}, function(err, item){
-      if(err){throw err;}
-      if(item.Date == Date){
-        console.log('This case is already the current case')
-        res.render('caseStoreSuccess', {
+    //Make sure that there is a case that exists for that date
+    collection.findOne({'Date': Date}, function(err, item){
+      if(!item){
+        res.render('error', {
           locals: {
-            'title': title,
-            'header': header,
-            'Date': Date
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'There is currently no case in the database that debuts on that date'
           }
         })
       }
       else {
-        //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
-        caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
-          if (!err){
-            //Find the case that used to be the current case, update the case's field CurrentCase to 'past'
-            caseCollection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
+        //Make sure that the case that you'd like to set as current isn't already the current case 
+        collection.findOne({'CurrentCase':'yes'}, function(err, item){
+          if(item.Date == Date){
+            res.render('caseStoreSuccess', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Date': Date
+              }
+            })
+          }
+          else {
+            //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
+            caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
               if (!err){
-                //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
-                caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+                //Find the case that used to be the current case, update the case's field CurrentCase to 'past'
+                caseCollection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
                   if (!err){
-                    console.log('Current case and Past case have been updated');
-                    res.render('caseStoreSuccess', {
-                      locals: {
-                        'title': title,
-                        'header': header,
-                        'Date': Date
+                    //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
+                    caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+                      if (!err){
+                        console.log('Current case and Past case have been updated');
+                        res.render('caseStoreSuccess', {
+                          locals: {
+                            'title': title,
+                            'header': header,
+                            'Date': Date
+                          }
+                        })
                       }
                     })
                   }
@@ -431,18 +457,32 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   if (err){throw err;}
   db.createCollection('Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection('Cases');
-    //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
-    caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
-      if (!err){
-        //Find the case that will be the past case, update the case's field CurrentCase to 'past'
-        caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
+    //make sure that a case exists for the desired date
+    caseCollection.findOne({'Date':Date}, function (err, Case){
+      if (!Case) {
+        res.render('error', {
+          locals: {
+            'title': 'Oops',
+            'header': 'Oops',
+            'errorMessage': 'Sorry. There is no case in the database with that debut date.'
+          }
+        })
+      }
+      else {
+        //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
+        caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
           if (!err){
-            console.log('Past case has been updated');
-            res.render('caseStoreSuccess', {
-              locals: {
-                'title': title,
-                'header': header,
-                'Date': Date
+            //Find the case that will be the past case, update the case's field CurrentCase to 'past'
+            caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
+              if (!err){
+                console.log('Past case has been updated');
+                res.render('caseStoreSuccess', {
+                  locals: {
+                    'title': title,
+                    'header': header,
+                    'Date': Date
+                  }
+                })
               }
             })
           }
@@ -577,23 +617,35 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
   if (err){throw err;}
   db.createCollection('Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection('Cases');
-    //In "caseCollection", find the case with the Date "Date", then in that document
-    //set the fields to the new values
-    caseCollection.update({'Date':Date}, {$set:{'StudentWithExplanation':StudentWithExplanation, 'StudentExplanation':StudentExplanation}}, {w:1}, function(err, result){
-      if (!err){
-        res.render('caseStoreSuccess', {
+    //make sure that a case exists for the desired date
+    caseCollection.findOne({'Date':Date}, function (err, Case){
+      if (!Case) {
+        res.render('error', {
           locals: {
-            'title': title,
-            'header': header,
-            'Date': Date
+            'title': 'Oops',
+            'header': 'Oops',
+            'errorMessage': 'Sorry. There is no case in the database with that debut date. Go back and choose another debut date'
+          }
+        })
+      }
+      else {
+        //In "caseCollection", find the case with the Date "Date", then in that document
+        //set the fields to the new values
+        caseCollection.update({'Date':Date}, {$set:{'StudentWithExplanation':StudentWithExplanation, 'StudentExplanation':StudentExplanation}}, {w:1}, function(err, result){
+          if (!err){
+            res.render('caseStoreSuccess', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Date': Date
+              }
+            })
           }
         })
       }
     })
-
   })
 })
-
 })
 
 app.get('/setViewCase', function(req, res) {
@@ -620,16 +672,26 @@ var Date = req.body.Date;
   if (err){throw err;}
   db.collection('Cases', function(err, collection) { //returns the collection 'Cases'
     collection.findOne({'Date':Date}, function(err, item){
+       if (!item){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry. There is no case with that debut date in the database.'
+          }
+        })
+       }
+       else {
         res.render('viewCase', {
           locals: {
             'title': title,
             'header': header,
             'Case': item
           }
-
         })
-      })
+      }
     })
+  })
   })
 
 })
@@ -656,6 +718,15 @@ app.post('/editCaseAction', function(req, res) {
   })
 
 
+})
+
+app.get('/submitCase', function(req, res){
+  res.render('submitCase', {
+    locals: {
+      'title': 'I\'ve got a case!',
+      'header': 'I\'ve got a case!'
+    }
+  })
 })
 
 app.listen(process.env.PORT || 8000);
