@@ -145,7 +145,7 @@ MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseA
     var answerCollection = db.collection('Answers');
     //Check to make sure that username and email match
     answerCollection.findOne({'username':username}, function(err, user){
-      if (user.email != email){
+      if (user && user.email != email){
         res.render('error', {
           locals: {
             'title': 'Oops!',
