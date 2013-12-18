@@ -11,22 +11,23 @@
                 <% if (header != 'CaseAce') { %>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <% if (header == 'Leader Board') { %>
-                        <li class="active">
-                        <% }
-                           else { %>
-                        <li>
-                        <% } %>
-                            <a href="/leaderboard">Leader Board</a>
-                        </li>
-
+                        <% if (community != 'UCSFMS1s') { %>
+                            <% if (header == 'Leader Board') { %>
+                            <li class="active">
+                            <% }
+                               else { %>
+                            <li>
+                            <% } %>
+                                <a href="/<%=community%>/leaderboard">Leader Board</a>
+                            </li>
+                        <% } %>                    
                         <% if (header == 'Current Case') { %>
                         <li class="active">
                         <% }
                            else { %>
                         <li>
                         <% } %>
-                            <a href="/currentcase">Current Case</a>
+                            <a href="/<%=community%>/currentcase">Current Case</a>
                         </li>
 
                         <% if (header == 'Past Cases') { %>
@@ -35,7 +36,7 @@
                            else { %>
                         <li>
                         <% } %>
-                            <a href="/pastcases">Past Cases</a>
+                            <a href="/<%=community%>/pastCasesList">Past Cases</a>
                         </li>
                     </ul>
                 </div>

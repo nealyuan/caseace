@@ -1,0 +1,13 @@
+<% include header.ejs %>
+<% include navbar.ejs %>
+<div class="container">
+
+
+<% Cases.forEach(function(Case) { %>
+<i class="icon-briefcase"></i>  <a href="/<%=community%>/getCase/<%=Case._id%>"><%= Case.Date %></a>: <%= Case.Diagnosis %><br>
+<% }); %>
+
+
+</div>
+
+<% include footer.ejs %>
