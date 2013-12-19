@@ -11,6 +11,7 @@ var async = require('async');
 //Get necessary environment variables fr heroku in order to login to db
 var mongoURL = process.env.MONGOURL;
 
+
 //configuration needed for using EJS
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -41,7 +42,7 @@ app.get('/:community/leaderboard', function(req, res) {
   title = 'Leader Board',
   header = 'Leader Board';
   //Retrieve all of the individual scores from MongoDB in the collection Users
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Users', function(err, collection) { //returns the collection 'Users'
       collection.find().toArray(function(err, users) { //users is an array of objects, each object is a user and their scores
@@ -101,7 +102,7 @@ app.get('/:community/pastcases', function(req, res) {
   var header = 'Past Cases';
 
   //Retrieve pastCases from MongoDB collection pastCases
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     //find just one item/case that has CurrentCase field set to 'past'
@@ -140,7 +141,7 @@ app.get('/:community/pastCasesList', function(req, res) {
   casesBeforeDate = [];
 
   //Retrieve pastCases from MongoDB collection pastCases
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     //find just one item/case that has CurrentCase field set to 'past'
@@ -191,7 +192,7 @@ app.get('/:community/getCase/:caseID', function(req, res) {
   header = 'Past Cases';
 
   //Retrieve pastCases from MongoDB collection pastCases
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     //find just one item/case that has the correct object ID
@@ -234,7 +235,7 @@ date = req.body.Date,
 submitTime = new Date().getTime(); //time is in milliseconds since Jan 1 1970
 
 //connect to database collection "Answers"
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Answers', {w:1}, function(err, collection) {
     var answerCollection = db.collection(community+'Answers');
@@ -307,7 +308,7 @@ app.post('/:community/gradeAnswers2', function(req, res) {
   header = 'Grade Answers',
   Date = req.body.Date;
   //Retrieve case answers for desired date from MongoDB collection Answers
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
     var answerCollection = db.collection(community+'Answers');
     answerCollection.findOne({'date':Date}, function(err, answers) {
@@ -376,7 +377,7 @@ for (var i = 0, j = 0; j < 3 && i < usernames.length; i++)
   }
 }
 
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Users', {w:1}, function(err, collection) {
     var userCollection = db.collection(community+'Users');
@@ -481,7 +482,7 @@ header = 'Current Case successfully set',
 Date = req.body.Date;
 
 //connect to database collection "Cases"
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection(community+'Cases');
@@ -564,7 +565,7 @@ app.post('/:community/setPastCaseAction', function(req, res) {
   Date = req.body.Date;
 
 //connect to database collection "Cases"
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection(community+'Cases');
@@ -685,7 +686,7 @@ function getURL (string){
 }
 
 //connect to database collection "Cases"
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection(community+'Cases');
@@ -732,7 +733,7 @@ StudentWithExplanation = req.body.StudentWithExplanation,
 StudentExplanation = req.body.StudentExplanation;
 
 //connect to database collection "Cases"
-MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.createCollection(community+'Cases', {w:1}, function(err, collection) {
     var caseCollection = db.collection(community+'Cases');
@@ -789,7 +790,7 @@ app.get('/:community/setViewCaseList', function(req, res) {
   title = 'Choose a Case to View',
   header = 'Choose a Case to View';
   
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     collection.find().toArray(function(err, cases){
@@ -827,7 +828,7 @@ app.get('/:community/viewCaseList/:caseID', function(req, res) {
   header = 'View a Case';
 
   //Retrieve pastCases from MongoDB collection Cases
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     //find just one item/case that has the correct object ID
@@ -867,7 +868,7 @@ header = 'View a Case',
 Date = req.body.Date;
 
   //Retrieve the case from MongoDB collection 'Cases' that matches today's date
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     collection.findOne({'Date':Date}, function(err, item){
@@ -904,7 +905,7 @@ app.post('/:community/editCaseAction', function(req, res) {
   Date = req.body.Date;
   
   //Retrieve the case from MongoDB collection 'Cases' that matches today's date
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     collection.findOne({'Date':Date}, function(err, item){
