@@ -9,7 +9,7 @@ var async = require('async');
 
 
 //Get necessary environment variables fr heroku in order to login to db
-var mongoURL = System.getenv("MONGOURL");
+var mongoURL = process.env.MONGOURL;
 
 //configuration needed for using EJS
 app.configure(function(){
