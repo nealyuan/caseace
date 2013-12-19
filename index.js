@@ -7,6 +7,10 @@ var MongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
 var async = require('async');
 
+
+//Get necessary environment variables fr heroku in order to login to db
+var mongoURL = System.getenv("MONGOURL");
+
 //configuration needed for using EJS
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -61,7 +65,7 @@ app.get('/:community/currentcase', function(req, res) {
   var header = 'Current Case';
 
   //Retrieve the case from MongoDB collection 'Cases' that matches today's date
-  MongoClient.connect("mongodb://caseaceapi:groupmed@paulo.mongohq.com:10073/CaseAceDB", function(err, db){
+  MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     collection.findOne({'CurrentCase':'yes'}, function(err, item){//find just one item/case that has the CurrentCase field = "yes"
