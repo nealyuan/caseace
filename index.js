@@ -244,8 +244,8 @@ app.post('/:community/storeAnswerAction', function(req, res) {
 var community = req.params.community,
 title = 'Submission received',
 header = 'Submission received',
-username = req.body.Username,
-email = req.body.Email,
+username = req.body.Username.split(" ").join(""), //gets rid of whitespaces between words
+email = req.body.Email.toLowerCase(),
 diagnosisAnswer = req.body.DiagnosisAnswer,
 explanation = req.body.Explanation,
 date = req.body.Date,
