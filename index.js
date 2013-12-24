@@ -657,7 +657,7 @@ var community = req.params.community,
 title = 'Case Storage Successful',
 header = 'Success';
 var Case = {
-CurrentCase: 'no',
+CurrentCase: req.body.CurrentCase,
 Date: req.body.Date,
 FlexibleText1: req.body.FlexibleText1,
 FlexibleText2: req.body.FlexibleText2,
