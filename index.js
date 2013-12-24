@@ -95,13 +95,13 @@ app.get('/:community/currentcase', function(req, res) {
   })
 })
 
+//This is for just showing the most recent past case
 app.get('/:community/pastcases', function(req, res) {
   
   var community = req.params.community
   var title = 'CaseAce Past Cases'
   var header = 'Past Cases';
 
-  //Retrieve pastCases from MongoDB collection pastCases
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
@@ -132,7 +132,7 @@ app.get('/:community/pastcases', function(req, res) {
   })
 })
 
-//This is for showing the cases as a list
+//This is for showing all the past cases as a list
 app.get('/:community/pastCasesList', function(req, res) {
   
   var community = req.params.community,
@@ -140,11 +140,9 @@ app.get('/:community/pastCasesList', function(req, res) {
   header = 'Past Cases',
   casesBeforeDate = [];
 
-  //Retrieve pastCases from MongoDB collection pastCases
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
-  db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
-    //find just one item/case that has CurrentCase field set to 'past'
+  db.collection(community+'Cases', function(err, collection) {
     collection.find().toArray(function(err, cases){
       if(!cases){
         res.render('error', {
@@ -166,9 +164,11 @@ app.get('/:community/pastCasesList', function(req, res) {
           dateOfCase = new Date();
           dateOfCase.setFullYear(year,mth-1,day);
           if (dateOfCase < today && item.CurrentCase != 'yes'){
-            casesBeforeDate.push(item)
+            item.dateOfCase = dateOfCase; //store the date in a form we can use for comparison for sorting
+            casesBeforeDate.push(item);
           }
         })
+        sortByDate(casesBeforeDate);
         res.render('pastCasesList', {
           locals: {
             'title': title,
@@ -181,7 +181,24 @@ app.get('/:community/pastCasesList', function(req, res) {
     })
   })
   })
+
 })
+
+//This function is used to sort cases in order by date.  Used by pastCasesList and setViewCaseList.
+function sortByDate(caseArray){
+  for (var i = 1; i < caseArray.length; i++)
+  {
+    for (var j = 0; j < i; j++)
+    {
+      if (caseArray[i].dateOfCase > caseArray[j].dateOfCase)
+      {
+        var temp = caseArray[i];
+        caseArray[i] = caseArray[j];
+        caseArray[j] = temp;
+      }
+    }
+  }
+}
 
 //This is so that when you see the cases as a list, you can click on a link and get to one of them
 app.get('/:community/getCase/:caseID', function(req, res) {
@@ -427,7 +444,7 @@ MongoClient.connect(mongoURL, function(err, db){
         //update the points in the database for the user, "upsert" is used to add an entry if there isn't a user entry with that name
         userCollection.update({'username':username}, {$set:{'numCorrect':numCorrect, 'numTotal':numTotal, 'superbExplanations':superbExplanations}}, {upsert:true,w:1}, function(err, result){
           if (err){throw err;}          
-          callback(err);
+          callback(err); //callback the status of the error
           })        
       })
     }
@@ -499,9 +516,22 @@ MongoClient.connect(mongoURL, function(err, db){
         })
       }
       else {
-        //Make sure that the case that you'd like to set as current isn't already the current case 
         collection.findOne({'CurrentCase':'yes'}, function(err, item){
-          if(item.Date == Date){
+          //if there's no currentcase, then just set this case as the current case and be done.
+          if (!item){
+            caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+              res.render('caseStoreSuccess', {
+                locals: {
+                  'title': title,
+                  'header': header,
+                  'Date': Date,
+                  'community': community
+                }
+              })
+            })
+          }
+          //Make sure that the case that you'd like to set as current isn't already the current case 
+          else if (item.Date == Date){
             res.render('caseStoreSuccess', {
               locals: {
                 'title': title,
@@ -514,26 +544,24 @@ MongoClient.connect(mongoURL, function(err, db){
           else {
             //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
             caseCollection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
-              if (!err){
-                //Find the case that used to be the current case, update the case's field CurrentCase to 'past'
-                caseCollection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
-                  if (!err){
-                    //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
-                    caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
-                      if (!err){
-                        res.render('caseStoreSuccess', {
-                          locals: {
-                            'title': title,
-                            'header': header,
-                            'Date': Date,
-                            'community': community
-                          }
-                        })
-                      }
-                    })
-                  }
-                })
-              }
+              //Find the case that used to be the current case, update the case's field CurrentCase to 'past'
+              caseCollection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
+                if (!err){
+                  //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
+                  caseCollection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+                    if (!err){
+                      res.render('caseStoreSuccess', {
+                        locals: {
+                          'title': title,
+                          'header': header,
+                          'Date': Date,
+                          'community': community
+                        }
+                      })
+                    }
+                  })
+                }
+              })
             })
           }
         })
@@ -692,7 +720,6 @@ MongoClient.connect(mongoURL, function(err, db){
     var caseCollection = db.collection(community+'Cases');
     //Insert/Update the Case into the collection
     caseCollection.update({'Date':Case.Date}, Case, {upsert:true,w:1}, function(err, result){
-      /*caseCollection.save(Case, {safe:true,w:1}, function(err, result){*/
       if (!err){
         res.render('caseStoreSuccess', {
           locals: {
@@ -805,6 +832,18 @@ app.get('/:community/setViewCaseList', function(req, res) {
         })
        }
        else {
+        //order the cases
+        var today = new Date();
+        cases.forEach(function(item){
+          var year = parseInt(item.Date.slice(0,4)),
+          mth = parseInt(item.Date.substr(5,7)),
+          day = parseInt(item.Date.substr(8,10)),
+          dateOfCase = new Date();
+          dateOfCase.setFullYear(year,mth-1,day);
+          item.dateOfCase = dateOfCase; //store the date in a form we can use for comparison for sorting
+          })
+        sortByDate(cases);
+
         res.render('viewCaseList', {
           locals: {
             'title': title,

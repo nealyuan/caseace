@@ -7,7 +7,8 @@
 <form action="/<%=community%>/storeCaseAction" method="POST">
 
     <label class="control-label" for="Date">
-      Date that Case Debuts (if calendar doesn't display in your browser, enter date in the format "yyyy-mm-dd")
+      Date that Case Debuts (if calendar doesn't display in your browser, enter date in the format "yyyy-mm-dd")<br>
+      Note: If a case already exists for this date, you will override that case. <a href="/<%=community%>/setViewCaseList">Check</a> first if you have any doubts.
     </label>
 	<input type="date" name="Date"><br>
 	
