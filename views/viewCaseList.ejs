@@ -3,7 +3,7 @@
 <div class="container">
 
 <% Cases.forEach(function(Case) { %>
-<i class="icon-briefcase"></i>  <a href="/<%=community%>/viewCaseList/<%=Case._id%>"><%= Case.Date %></a>: <%= Case.Diagnosis %><br>
+<a href="/<%=community%>/viewCaseList/<%=Case._id%>"><i class="icon-briefcase"></i></a>  <a href="/<%=community%>/viewCaseList/<%=Case._id%>"><%= Case.Date %></a>: <%= Case.Diagnosis %><br>
 <% }); %>
 
 

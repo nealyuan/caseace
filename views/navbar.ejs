@@ -61,9 +61,16 @@
         <% } %>
         
         <% if (header == 'Current Case') {%>
-        <p>
-        Submit answers by 10AM Sunday
-        </p>
+            <% if (community == 'UCSFMS1s') {%>
+            <p>
+            Submit answers by 6PM Thurs for cases opened on Tuesday <br>6PM Monday for cases opened on Friday
+            </p>
+            <% } %>
+            <% if (community == 'UCSFMS2s') {%>
+            <p>
+            Submit answers by 10AM Sunday
+            </p>
+            <% } %>
         <% } %>
 
         <% if (header == 'Past Cases') {%>
