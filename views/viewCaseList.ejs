@@ -1,9 +1,33 @@
 <% include header.ejs %>
 <% include navbar.ejs %>
+<% include password.ejs %>
 <div class="container">
 
 <% Cases.forEach(function(Case) { %>
-<a href="/<%=community%>/viewCaseList/<%=Case._id%>"><i class="icon-briefcase"></i></a>  <a href="/<%=community%>/viewCaseList/<%=Case._id%>"><%= Case.Date %></a>: <%= Case.Diagnosis %><br>
+<table>
+
+<tr>
+	<td nowrap style="font-size:8px">
+		<a href="/<%=community%>/viewCase/<%=Case._id%>">View/Edit</a><b>|</b>
+	</td>
+	<td nowrap style="font-size:8px">
+		<a href="/<%=community%>/makeCurrentCase/<%=Case._id%>">Set as Current Case</a><b>|</b>
+	</td>
+	<td nowrap style="font-size:8px">
+		<a href="/<%=community%>/gradeCase/<%=Case._id%>">Grade</a><b>|</b>
+	</td>
+	<td nowrap style="font-size:8px">
+		<a href="/<%=community%>/storeBestAnswer/<%=Case._id%>">Store Best Answer</a><b>|</b>
+	</td>
+	<td>
+		<i class="icon-briefcase"></i>  <%= Case.Date %>: <%= Case.Diagnosis %>
+	</td>
+	<td style="font-size:8px">
+		<a href="/<%=community%>/removeCase/<%=Case._id%>">Remove</a>
+	</td>
+</tr>
+
+</table>
 <% }); %>
 
 

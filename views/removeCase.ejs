@@ -1,0 +1,18 @@
+<% include header.ejs %>
+<% include navbar.ejs %>
+<% include password.ejs %>
+
+<div class="container">
+
+<p>Removing a Case from the database cannot be undone!</p>
+
+<form action="/<%=community%>/removeCaseAction" method="POST">
+
+	<input type="hidden" name="caseID" value=<%=caseID%>>	
+	<input class="btn" type="submit" value="Permanently Delete Case">
+
+</form>
+
+</div>
+
+<% include footer.ejs %>
