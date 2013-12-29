@@ -6,13 +6,14 @@
 
 <form action="/<%=community%>/storeCaseAction" method="POST">
 
-    <label class="control-label" for="Date">
+	<label class="control-label" for="Date">
     </label>
 	<input type="hidden" name="Date" value=<%- Case.Date %>>
-	<h2>Case from <%- Case.Date %></h2>
-	
+	<h2>Case for <%- Case.Date %></h2>
+	<a href="/<%=community%>/changeCaseDate/<%=Case._id%>">(Change case debut date)</a><br>
+
 	<label class="control-label" for="CurrentCase">
-	Is this case the Current Case, Past Case or neither? "yes" if Current Case, "past" if most recent past Case, "no" for neither. (Use <a href="/<%=community%>/setCurrentCase">Set Current Case</a> to change the current case)
+	<b>Is this case the Current Case, Past Case or neither?</b> "yes" if Current Case, "past" if most recent past Case, "no" for neither. (Use <a href="/<%=community%>/setCurrentCase">Set Current Case</a> to change the current case)
 	</label>
 	<p><b><%- Case.CurrentCase %></b></p>
 	<input type="hidden" name="CurrentCase" value=<%= Case.CurrentCase %>>

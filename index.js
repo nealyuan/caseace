@@ -823,6 +823,86 @@ MongoClient.connect(mongoURL, function(err, db){
 })
 })
 
+//This route allows you to change the debut date of a case
+app.get('/:community/changeCaseDate/:caseID', function(req, res) {
+  
+  var community = req.params.community,
+  caseID = req.params.caseID,
+  title = 'Change Case Debut Date',
+  header = 'Change Case Debut Date';
+
+  MongoClient.connect(mongoURL, function(err, db){
+  if (err){throw err;}
+  db.collection(community+'Cases', function(err, collection) { 
+    //find just one item/case that has the correct object ID
+    collection.findOne({'_id': new ObjectID(caseID)}, function(err, item){
+      if(!item){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry. Looks like there is no case for this date',
+            'community':community
+          }
+        })
+      }
+      else {
+        res.render('changeCaseDate', {
+          locals: {
+            'title': title,
+            'header': header,
+            'Case': item,
+            'community':community
+          }
+        })
+      }
+    })
+  })
+  })
+})
+
+//Action for changing the case date from /changeCaseDate
+app.post('/:community/changeCaseDateAction/:caseID', function(req, res) {
+
+var community = req.params.community,
+caseID = req.params.caseID,
+Date = req.body.Date,
+title = 'Date Changed',
+header = 'Date Changed';
+
+  MongoClient.connect(mongoURL, function(err, db){
+    if (err){throw err;}
+    db.collection(community+'Cases', function(err, collection) {
+    //find just one item/case that has the correct object ID
+      collection.findOne({'_id': new ObjectID(caseID)}, function(err, item){
+        if(!item){
+          res.render('error', {
+            locals: {
+              'title': 'Oops!',
+              'header': 'Oops!',
+              'errorMessage': 'Sorry. Looks like there is no case for this date',
+              'community':community
+            }
+          })
+        }
+        else {
+          collection.update({'_id': new ObjectID(caseID)}, {$set:{'Date':Date}}, {w:1}, function(err, result){
+            res.render('caseStoreSuccess', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Date': Date,
+                'community': community
+              }
+            })
+          })
+        }
+      })
+    })
+  })
+})
+
+
 
 //This route asks whether you really want to remove a case
 app.get('/:community/removeCase/:caseID', function(req, res) {

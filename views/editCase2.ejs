@@ -7,9 +7,10 @@
 <form action="/<%=community%>/storeCaseAction" method="POST">
 
     <label class="control-label" for="Date">
+      <b>Date that Case Debuts</b><br>
+      Note: Changing the date of this case to a new date will overwrite any case currently with that date
     </label>
-	<input type="hidden" name="Date" value=<%- Case.Date %>>
-	<h2>Case from <%- Case.Date %></h2>
+	<input type="date" name="Date" value=<%- Case.Date %>>
 	
 	<label class="control-label" for="CurrentCase">
 	Is this case the Current Case, Past Case or neither? "yes" if Current Case, "past" if most recent Past Case, "no" for neither.

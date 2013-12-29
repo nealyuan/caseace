@@ -1,0 +1,21 @@
+<% include header.ejs %>
+<% include password.ejs %>
+<% include navbar.ejs %>
+
+<div class="container">
+
+<form action="/<%=community%>/changeCaseDateAction/<%=Case._id%>" method="POST">
+
+    <label class="control-label" for="Date">
+      <b>Date that Case Debuts</b><br>
+      Note: Changing the date of this case to a new date will overwrite any case currently with that date
+    </label>
+	<input type="date" name="Date" value=<%- Case.Date %>>
+
+	<input class="btn" type="submit">
+
+</form>
+
+</div>
+
+<% include footer.ejs %>
