@@ -20,8 +20,8 @@
 	<% var usernameSuperbExp = Answers[i].username + "superbExp"; %>
 	<tr>
 	  <td><%= Answers[i].username %></td>
-	  <td><%= Answers[i].diagnosisAnswer %></td>
-	  <td><%= Answers[i].explanation %></td>
+	  <td><%- Answers[i].diagnosisAnswer %></td>
+	  <td><%- Answers[i].explanation %></td>
 	<td>
 		<input type="number" name=<%= usernamePoints %> size="20" min="0" value="0">
 	</td>
