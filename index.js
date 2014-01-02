@@ -269,7 +269,7 @@ app.get('/:community/admin', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. There are no cases in the database.',
-            'community': community 
+            'community': community
           }
         })
        }
@@ -291,7 +291,8 @@ app.get('/:community/admin', function(req, res) {
             'title': title,
             'header': header,
             'Cases': cases,
-            'community': community
+            'community': community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -311,7 +312,8 @@ app.get('/:community/storeCase', function(req, res) {
     locals: {
       'title': title,
       'header': header,
-      'community': community
+      'community': community,
+      'adminPanel': 'yes'
     }
 
   })   
@@ -393,7 +395,8 @@ MongoClient.connect(mongoURL, function(err, db){
             'title': title,
             'header': header,
             'Date': Case.Date,
-            'community': community
+            'community': community,
+            'adminPanel': 'yes'
           }
         })
       }        
@@ -431,7 +434,8 @@ Date = req.body.Date;
             'title': title,
             'header': header,
             'Case': item,
-            'community': community
+            'community': community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -457,7 +461,8 @@ app.post('/:community/editCaseAction', function(req, res) {
             'title': title,
             'header': header,
             'Case': item,
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       })
@@ -495,7 +500,8 @@ app.get('/:community/viewCase/:caseID', function(req, res) {
             'title': title,
             'header': header,
             'Case': item,
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -523,7 +529,8 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like there is no case for this date',
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -538,7 +545,8 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
                   'title': title,
                   'header': header,
                   'Date': Date,
-                  'community': community
+                  'community': community,
+                  'adminPanel': 'yes'
                 }
               })
             })
@@ -550,7 +558,8 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
                 'title': title,
                 'header': header,
                 'Date': Date,
-                'community': community
+                'community': community,
+                'adminPanel': 'yes'
               }
             })
           }
@@ -568,7 +577,8 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
                           'title': title,
                           'header': header,
                           'Date': Date,
-                          'community': community
+                          'community': community,
+                          'adminPanel': 'yes'
                         }
                       })
                     }
@@ -608,7 +618,8 @@ app.get('/:community/gradeCase/:caseID', function(req, res) {
               'title': 'Oops!',
               'header': 'Oops!',
               'errorMessage': 'There are currently no answers for a case in the database that debuted on that date',
-              'community':community
+              'community':community,
+              'adminPanel': 'yes'
             }
           })
         }
@@ -620,7 +631,8 @@ app.get('/:community/gradeCase/:caseID', function(req, res) {
                 'header': header,
                 'Answers': answers,
                 'Date': Date,
-                'community':community
+                'community':community,
+                'adminPanel': 'yes'
               }
             })
           })
@@ -735,7 +747,8 @@ MongoClient.connect(mongoURL, function(err, db){
             'title': 'Grading Submitted',
             'header': 'Grading Submitted',
             'successMessage': 'Your grading has been recorded.  Leaderboard is updated.',
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
             }
           })
         }
@@ -767,7 +780,8 @@ app.get('/:community/storeBestAnswer/:caseID', function(req, res) {
             'title': title,
             'header': header,
             'community': community,
-            'Date': Date
+            'Date': Date,
+            'adminPanel': 'yes'
           }
         })
       })
@@ -812,7 +826,8 @@ MongoClient.connect(mongoURL, function(err, db){
                 'title': title,
                 'header': header,
                 'Date': Date,
-                'community': community
+                'community': community,
+                'adminPanel': 'yes'
               }
             })
           }
@@ -852,7 +867,8 @@ app.get('/:community/changeCaseDate/:caseID', function(req, res) {
             'title': title,
             'header': header,
             'Case': item,
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -892,7 +908,8 @@ header = 'Date Changed';
                 'title': title,
                 'header': header,
                 'Date': Date,
-                'community': community
+                'community': community,
+                'adminPanel': 'yes'
               }
             })
           })
@@ -915,7 +932,8 @@ app.get('/:community/removeCase/:caseID', function(req, res) {
       'title': title,
       'header': header,
       'community':community,
-      'caseID': caseID
+      'caseID': caseID,
+      'adminPanel': 'yes'
     }
   })
 })
@@ -937,7 +955,8 @@ app.post('/:community/removeCaseAction', function(req, res) {
           'title': title,
           'header': header,
           'successMessage': 'Case has been successfully removed from the database',
-          'community':community
+          'community':community,
+          'adminPanel': 'yes'
           }
         })
       })
