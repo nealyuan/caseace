@@ -31,7 +31,8 @@ app.get('/', function(req, res) {
   res.render('index', {
     locals: {
       'title': title,
-      'header': header
+      'header': header,
+      'adminPanel': 'no'
     }
   })
 })
@@ -52,7 +53,8 @@ app.get('/:community/leaderboard', function(req, res) {
             'title': title,
             'header': header,
             'users': JSON.stringify(users), //we need to take the array of objects and turn it into JSON
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       })
@@ -78,7 +80,8 @@ app.get('/:community/currentcase', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like a case has not yet been designated as the Current Case.',
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -88,7 +91,8 @@ app.get('/:community/currentcase', function(req, res) {
             'title': title,
             'header': header,
             'Case': item,
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -115,7 +119,8 @@ app.get('/:community/pastCasesList', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like there are no past cases',
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -139,7 +144,8 @@ app.get('/:community/pastCasesList', function(req, res) {
             'title': title,
             'header': header,
             'Cases': casesBeforeDate,
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -185,7 +191,8 @@ app.get('/:community/getCase/:caseID', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like there is no case for this date',
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -195,7 +202,8 @@ app.get('/:community/getCase/:caseID', function(req, res) {
             'title': title,
             'header': header,
             'Case': item,
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -230,7 +238,8 @@ MongoClient.connect(mongoURL, function(err, db){
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry, your username and email do not match.  Either this username has already been taken or you have entered in a different email.  Please hit the back button and resubmit with a new username or the same email you\'ve used previously.',
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
           }
         })
       }
@@ -242,7 +251,8 @@ MongoClient.connect(mongoURL, function(err, db){
             'title': title,
             'header': header,
             'successMessage': 'Your answer has been recorded',
-            'community':community
+            'community':community,
+            'adminPanel': 'no'
             }
           })
         })
@@ -264,12 +274,13 @@ app.get('/:community/admin', function(req, res) {
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
     collection.find().toArray(function(err, cases){
        if (!cases){
-        res.render('error', {
+        res.render('admin', {
           locals: {
-            'title': 'Oops!',
-            'header': 'Oops!',
-            'errorMessage': 'Sorry. There are no cases in the database.',
-            'community': community
+            'title': title,
+            'header': header,
+            'Cases': null,
+            'community': community,
+            'adminPanel': 'yes'
           }
         })
        }
@@ -424,7 +435,8 @@ Date = req.body.Date;
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. There is no case with that debut date in the database.',
-            'community': community 
+            'community': community,
+            'adminPanel': 'yes' 
           }
         })
        }
@@ -490,7 +502,8 @@ app.get('/:community/viewCase/:caseID', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like there is no case for this date',
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -812,7 +825,8 @@ MongoClient.connect(mongoURL, function(err, db){
             'title': 'Oops',
             'header': 'Oops',
             'errorMessage': 'Sorry. There is no case in the database with that debut date. Go back and choose another debut date',
-            'community': community
+            'community': community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -857,7 +871,8 @@ app.get('/:community/changeCaseDate/:caseID', function(req, res) {
             'title': 'Oops!',
             'header': 'Oops!',
             'errorMessage': 'Sorry. Looks like there is no case for this date',
-            'community':community
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
@@ -897,7 +912,8 @@ header = 'Date Changed';
               'title': 'Oops!',
               'header': 'Oops!',
               'errorMessage': 'Sorry. Looks like there is no case for this date',
-              'community':community
+              'community':community,
+              'adminPanel': 'yes'
             }
           })
         }
@@ -970,7 +986,8 @@ app.get('/submitCase', function(req, res){
   res.render('submitCase', {
     locals: {
       'title': 'I\'ve got a case!',
-      'header': 'I\'ve got a case!'
+      'header': 'I\'ve got a case!',
+      'adminPanel': 'no'
     }
   })
 })
