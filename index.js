@@ -65,7 +65,7 @@ app.get('/:community/leaderboard', function(req, res) {
 //Displays the current case as designated in the MongoDB database
 app.get('/:community/currentcase', function(req, res) {
 
-  var community = req.params.community //whatever is in between the slashes before leaderboard is stored as req.params.community
+  var community = req.params.community
   var title = 'CaseAce Current Case'
   var header = 'Current Case';
 
@@ -73,8 +73,10 @@ app.get('/:community/currentcase', function(req, res) {
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
-    collection.findOne({'CurrentCase':'yes'}, function(err, item){//find just one item/case that has the CurrentCase field = "yes"
-      if(!item){
+
+    //set that case to CurrentCase field = "yes", set the last "yes" case to "no"
+    collection.find().toArray(function(err, cases){
+      if(!cases){
         res.render('error', {
           locals: {
             'title': 'Oops!',
@@ -85,15 +87,87 @@ app.get('/:community/currentcase', function(req, res) {
           }
         })
       }
-      else {
-        res.render('currentCase', {
-          locals: {
-            'title': title,
-            'header': header,
-            'Case': item,
-            'community':community,
-            'adminPanel': 'no'
+      else {      
+        //find the most recent case that's before the current time
+        var today = new Date();
+        var mostRecentCase = null, mostRecentCaseDate = null;
+
+        cases.forEach(function(item){
+          var year = parseInt(item.Date.slice(0,4)),
+          mth = parseInt(item.Date.substr(5,7)),
+          day = parseInt(item.Date.substr(8,10)),
+          //dateOfCase is a way to store the item's date in a way to be compared with today
+          dateOfCase = new Date();
+          dateOfCase.setFullYear(year,mth-1,day);
+          if (dateOfCase < today){
+            //if mostRecentCase is still null, store as mostRecentCase
+            if (mostRecentCase == null){
+              mostRecentCase = item;
+              mostRecentCaseDate = dateOfCase;
+            }
+           //if dateOfCase > mostRecentCaseDate, then store as mostRecent Case 
+            else if (dateOfCase > mostRecentCaseDate){
+              mostRecentCase = item;
+              mostRecentCaseDate = dateOfCase;
+            }
           }
+        })
+        //update the current case to "no" and set this most recent case to "yes"
+        collection.findOne({'CurrentCase':'yes'}, function(err, item){
+          var Date = mostRecentCase.Date; //set the Date variable
+          //if there's no currentcase, then just set this case as the current case and be done.
+          if (!item){
+            collection.update({'_id': new ObjectID(mostRecentCase._id.toString())}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+              collection.findOne({'CurrentCase':'yes'}, function(err, item2){
+                res.render('currentCase', {
+                  locals: {
+                    'title': title,
+                    'header': header,
+                    'Case': item2,
+                    'community':community,
+                    'adminPanel': 'no'
+                  }
+                })
+              })
+            })
+          }
+          //Make sure that the case that you'd like to set as current isn't already the current case 
+          else if (item.Date == Date){
+            res.render('currentCase', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Case': item,
+                'community':community,
+                'adminPanel': 'no'
+              }
+            })
+          }
+          else {
+            //Find the case that used to be the current case, update the case's field CurrentCase to 'no'
+            collection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
+              if (!err){
+                //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
+                collection.update({'_id': new ObjectID(mostRecentCase._id.toString())}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+                  if (!err){
+                    collection.findOne({'CurrentCase':'yes'}, function(err, item2){
+                      res.render('currentCase', {
+                        locals: {
+                          'title': title,
+                          'header': header,
+                          'Case': item2,
+                          'community':community,
+                          'adminPanel': 'no'
+                        }
+                      })
+                    })
+                  }
+                })
+              }
+            })
+          }
+
+
         })
       }
     })
@@ -179,7 +253,6 @@ app.get('/:community/getCase/:caseID', function(req, res) {
   title = 'CaseAce Past Cases',
   header = 'Past Cases';
 
-  //Retrieve pastCases from MongoDB collection pastCases
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
@@ -490,7 +563,6 @@ app.get('/:community/viewCase/:caseID', function(req, res) {
   title = 'View a Case',
   header = 'View a Case';
 
-  //Retrieve pastCases from MongoDB collection Cases
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
   db.collection(community+'Cases', function(err, collection) { //returns the collection 'Cases'
@@ -577,27 +649,24 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
             })
           }
           else {
-            //Find the case that used to be the past case, update the case's field CurrentCase to 'no'
-            collection.update({'CurrentCase': 'past'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
-              //Find the case that used to be the current case, update the case's field CurrentCase to 'past'
-              collection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'past'}}, {w:1}, function(err, result){
-                if (!err){
-                  //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
-                  collection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
-                    if (!err){
-                      res.render('caseStoreSuccess', {
-                        locals: {
-                          'title': title,
-                          'header': header,
-                          'Date': Date,
-                          'community': community,
-                          'adminPanel': 'yes'
-                        }
-                      })
-                    }
-                  })
-                }
-              })
+            //Find the case that used to be the current case, update the case's field CurrentCase to 'no'
+            collection.update({'CurrentCase': 'yes'}, {$set:{'CurrentCase':'no'}}, {w:1}, function(err, result){
+              if (!err){
+                //Find the case that will be the current case, update the case's field CurrentCase to 'yes'
+                collection.update({'Date': Date}, {$set:{'CurrentCase':'yes'}}, {w:1}, function(err, result){
+                  if (!err){
+                    res.render('caseStoreSuccess', {
+                      locals: {
+                        'title': title,
+                        'header': header,
+                        'Date': Date,
+                        'community': community,
+                        'adminPanel': 'yes'
+                      }
+                    })
+                  }
+                })
+              }
             })
           }
         })
