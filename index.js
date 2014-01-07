@@ -99,7 +99,7 @@ app.get('/:community/currentcase', function(req, res) {
           //dateOfCase is a way to store the item's date in a way to be compared with today
           dateOfCase = new Date();
           dateOfCase.setFullYear(year,mth-1,day);
-          if (dateOfCase < today){
+          if (dateOfCase <= today){
             //if mostRecentCase is still null, store as mostRecentCase
             if (mostRecentCase == null){
               mostRecentCase = item;
