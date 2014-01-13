@@ -59,23 +59,23 @@
 <p><%- Case.Question%></p>
 <% } %>
 
+<% if (Case.Citation != "" && Case.Citation != "<br>" && Case.Citation != null) { %>
+<p><b><%- Case.Citation%></b></p>
+<% } %>
+
 <h2>Answer</h2>
-<% if (Case.FirstSolvers != "" && Case.FirstSolvers != "<br>" && Case.FirstSolvers != null) { %>
-<p>Congratulations to <b><%- Case.FirstSolvers%></b> for being the first to solve this case!</p>
-<% } %>
-
-<% if (Case.SuperbExplanations != "" && Case.SuperbExplanations != "<br>" && Case.SuperbExplanations != null) { %>
-<p>Superb explanations were awarded to <b><%- Case.SuperbExplanations%></b></p>
-<% } %>
-
 <p><b><%- Case.Diagnosis %></b>
 <% if (Case.FurtherDetails != "" && Case.FurtherDetails != "<br>" && Case.FurtherDetails != null) { %>
 <br><%- Case.FurtherDetails %>
 <% } %>
 </p>
 
-<% if (Case.Citation != "" && Case.Citation != "<br>" && Case.Citation != null) { %>
-<p><%- Case.Citation%></p>
+<% if (Case.FirstSolvers != "" && Case.FirstSolvers != "<br>" && Case.FirstSolvers != null) { %>
+<p>Congratulations to <b><%- Case.FirstSolvers%></b> for being the first to solve this case!</p>
+<% } %>
+
+<% if (Case.SuperbExplanations != "" && Case.SuperbExplanations != "<br>" && Case.SuperbExplanations != null) { %>
+<p>Superb explanations were awarded to <b><%- Case.SuperbExplanations%></b></p>
 <% } %>
 
 <% if (Case.StudentWithExplanation != "" && Case.StudentWithExplanation != "<br>" && Case.StudentWithExplanation != null) { %>

@@ -83,16 +83,6 @@
 	<textarea name="Question"><%- Case.Question %></textarea><br>
 
 	<h2>Answer</h2>
-	<label class="control-label" for="FirstSolvers">
-	First three users to solve the case
-	</label>
-	<textarea name="FirstSolvers"><%- Case.FirstSolvers %></textarea><br>
-	
-	<label class="control-label" for="SuperbExplanations">
-	Users who were awarded Superb Explanations. NOTE: changes to user list here will not be reflected in Leaderboard.
-	</label>
-	<textarea name="SuperbExplanations"><%- Case.SuperbExplanations %></textarea><br>
-
 	<label class="control-label" for="Diagnosis">
 	What is the diagnosis?
 	</label>
@@ -102,6 +92,16 @@
 	Further details about the patient not initially revealed in initial case presentation
 	</label>
 	<textarea name="FurtherDetails"><%- Case.FurtherDetails %></textarea><br>
+
+	<label class="control-label" for="FirstSolvers">
+	First three users to solve the case
+	</label>
+	<textarea name="FirstSolvers"><%- Case.FirstSolvers %></textarea><br>
+	
+	<label class="control-label" for="SuperbExplanations">
+	Users who were awarded Superb Explanations. NOTE: changes to user list here will not be reflected in Leaderboard.
+	</label>
+	<textarea name="SuperbExplanations"><%- Case.SuperbExplanations %></textarea><br>
 
 	<label class="control-label" for="StudentWithExplanation">
 	Which username's explanation will you display
