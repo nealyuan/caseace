@@ -726,11 +726,24 @@ app.get('/:community/gradeCase/:caseID', function(req, res) {
 })
 
 //This route takes answers inputed after grandAnswers.ejs and then updates user tallies in db for leaderboard
+//This is the structure of req.body
+/*
+{ userApoints: '0',
+  userAsuperbExp: '0',
+  displayExplanations: [ 'explanation a', 'explanation b', 'explanation c' ] <-- Tells us to display the explanation on the answer page
+  userBpoints: '0',
+  userBsuperbExp: '0',
+  userCpoints: '0',
+  userCsuperbExp: '0',
+  totalPoints: '2', <-- This is the total number of possible points
+  Date: '2014-01-09' } <-- This is the date of the case */
+
 app.post('/:community/gradeAnswersAction', function(req, res) {
 var community = req.params.community,
-responses = req.body, //responses is an object with properties being usernamePoints or usernameSuperbExp and values being numbers
+responses = req.body, //see structure of req.body above
 usernamesRaw = [],//an array of the usernames that are raw from the response and need to be processed to get rid of "points" and "superbExp" from the end
 usernames = [],//an array of the cleaned up usernames
+displayAnswerArray = [], //an array of all of the explanations to be displayed on the Answer page
 points = [],//an array of points in the format [user1Points, user1SuperbExp, user2Points, user2SuperbExp,...]
 totalPoints = parseInt(req.body.totalPoints),
 Date = req.body.Date, //date of case being graded
@@ -738,9 +751,15 @@ SuperbExplanations = [], //array containing all users with superb explanations
 FirstSolvers = []; //array containing first three users who solved case
 
 for(var property in responses) {
-  usernamesRaw.push(property);
-  points.push(parseInt(responses[property]));
+  if (property == 'displayExplanations'){
+    displayAnswerArray = responses[property]
+  }
+  else {
+    usernamesRaw.push(property);
+    points.push(parseInt(responses[property]));
+  }
 }
+
 
 //get rid of the last 2 entries in usernamesRaw and points, b/c those entries contains total points and Date
 usernamesRaw = usernamesRaw.slice(0, usernamesRaw.length-2);
@@ -760,6 +779,17 @@ for (var i = 0, j = 0; j < 3 && i < usernames.length; i++)
   j++;
   }
 }
+
+//Make a string of the explanations to display that has the form '<p>Explanation by <b>username</b>:</p><p>explanation</p>
+//if (Case.HPI != "" && Case.HPI != "<br>" && Case.HPI != null)
+var displayAnswerArray2 = [], displayAnswerString;
+for (var i = 0; i < displayAnswerArray.length; i++){
+  if (displayAnswerArray[i]!="" && displayAnswerArray[i]!="<br>" && displayAnswerArray[i]!=null){
+    displayAnswerArray2.push('<p><b>Explanation by ' + usernames[i] + '</b>:</p><p>' + displayAnswerArray[i] + '</p>')
+  }
+} 
+displayAnswerString = displayAnswerArray2.join("");
+
 
 MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
@@ -814,7 +844,8 @@ MongoClient.connect(mongoURL, function(err, db){
       })
     }
 
-    //Update the list of usernames with SuperbExplanations and FirstSolvers to the case in the db
+
+    //Update the list of usernames with SuperbExplanations and FirstSolvers to the case in the db, update the explanations to be displayed on the solution page
     function storeSuperbExplanations(){
     db.createCollection(community+'Cases', {w:1}, function(err, collection) {
       var caseCollection = db.collection(community+'Cases');
@@ -822,7 +853,7 @@ MongoClient.connect(mongoURL, function(err, db){
       //set the fields to the new values
       var SuperbExplanationsString = SuperbExplanations.join(", ");
       var FirstSolversString = FirstSolvers.join(", ");
-      caseCollection.update({'Date':Date}, {$set:{'SuperbExplanations':SuperbExplanationsString, 'FirstSolvers':FirstSolversString}}, {w:1}, function(err, result){
+      caseCollection.update({'Date':Date}, {$set:{'SuperbExplanations':SuperbExplanationsString, 'FirstSolvers':FirstSolversString, 'StudentExplanation':displayAnswerString}}, {w:1}, function(err, result){
         if (!err){
           res.render('success', {
           locals: {

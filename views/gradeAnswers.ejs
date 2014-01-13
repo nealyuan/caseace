@@ -16,7 +16,8 @@
 		<td><b>Diagnosis</b></td>
 		<td><b>Explanation</b></td>
 		<td><b>Score</b></td>
-		<td><b>Superb explanation? (1 for yes)</b></td>
+		<td><b>Superb Explanation? (1 for yes)</b></td>
+		<td><b>Explanation Excerpt for Answer Page</b></td>
 	</tr>
 
 <% for (var i = 0; i < Answers.length; i++) { %>
@@ -32,6 +33,10 @@
 	<td>
 		<input type="number" name=<%= usernameSuperbExp %> size="20" min="0" value="0">
 	</td>
+	<td>
+		<textarea name="displayExplanations"></textarea>
+<!-- 		<input type="number" name='displayAnswer' size="20" min="0" max="1" value="0"> -->
+	</td>	
 	</tr>
 <% } %>
 
