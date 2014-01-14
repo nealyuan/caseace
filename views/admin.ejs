@@ -25,15 +25,9 @@
 			<td nowrap style="font-size:10px">
 				<a href="/<%=community%>/viewCase/<%=Case._id%>">View/Edit</a><b>|</b>
 			</td>
-<!-- 			<td nowrap style="font-size:10px">
-				<a href="/<%=community%>/makeCurrentCase/<%=Case._id%>">Set as Current Case</a><b>|</b>
-			</td> -->
 			<td nowrap style="font-size:10px">
 				<a href="/<%=community%>/gradeCase/<%=Case._id%>">Grade</a><b>|</b>
 			</td>
-<!-- 			<td nowrap style="font-size:10px">
-				<a href="/<%=community%>/storeBestAnswer/<%=Case._id%>">Store Best Answer</a><b>|</b>
-			</td> -->
 			<td>
 				<i class="icon-briefcase"></i>  <%= Case.Date %>: <%= Case.Diagnosis %>
 			</td>
@@ -45,6 +39,12 @@
 		</table>
 		<% }); %>
 	<% } %>
+<hr />
+
+<p>
+<a style="font-size:24px" href="/<%=community%>/changePoints"><b>Change User Points</b></a><br>
+Note: in most cases you should NOT have to use this function.  Only use this if you need to correct points from a misgrading.
+</p>
 
 <hr />
 

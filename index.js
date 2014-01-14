@@ -874,83 +874,111 @@ MongoClient.connect(mongoURL, function(err, db){
 })
 
 
-//This route allows you to choose/store the Best User Answer for the case
-app.get('/:community/storeBestAnswer/:caseID', function(req, res) {
+//Lists the current points that users have and allows you to make edits.
+app.get('/:community/changePoints', function(req, res) {
   
   var community = req.params.community,
-  caseID = req.params.caseID,
-  title = 'Best Answers',
-  header = 'Designate the Best Answer';
- 
+  title = 'Change User Points',
+  header = 'Change User Points';
+
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
-    //find and store the date of the case
-    db.collection(community+'Cases', function(err, collection) {
-      collection.findOne({'_id': new ObjectID(caseID)}, function(err, item){
-      var Date = item.Date;
-        res.render('storeSolvers', {
-          locals: {
-            'title': title,
-            'header': header,
-            'community': community,
-            'Date': Date,
-            'adminPanel': 'yes'
-          }
-        })
-      })
-    })
-  })
-})
-
-//action for the route /storeBestAnswer
-app.post('/:community/storeSolversAction', function(req, res) {
-
-var community = req.params.community,
-title = 'Solver Storage Successful',
-header = 'Solver Storage Successful',
-Date = req.body.Date,
-StudentWithExplanation = req.body.StudentWithExplanation,
-StudentExplanation = req.body.StudentExplanation;
-
-//connect to database collection "Cases"
-MongoClient.connect(mongoURL, function(err, db){
-  if (err){throw err;}
-  db.createCollection(community+'Cases', {w:1}, function(err, collection) {
-    var caseCollection = db.collection(community+'Cases');
-    //make sure that a case exists for the desired date
-    caseCollection.findOne({'Date':Date}, function (err, Case){
-      if (!Case) {
+  db.collection(community+'Users', function(err, collection) {
+    collection.find().toArray(function(err, users){
+      if(!users){
         res.render('error', {
           locals: {
-            'title': 'Oops',
-            'header': 'Oops',
-            'errorMessage': 'Sorry. There is no case in the database with that debut date. Go back and choose another debut date',
-            'community': community,
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry. Looks like there are no users yet',
+            'community':community,
             'adminPanel': 'yes'
           }
         })
       }
       else {
-        //In "caseCollection", find the case with the Date "Date", then in that document
-        //set the fields to the new values
-        caseCollection.update({'Date':Date}, {$set:{'StudentWithExplanation':StudentWithExplanation, 'StudentExplanation':StudentExplanation}}, {w:1}, function(err, result){
-          if (!err){
-            res.render('caseStoreSuccess', {
-              locals: {
-                'title': title,
-                'header': header,
-                'Date': Date,
-                'community': community,
-                'adminPanel': 'yes'
-              }
-            })
+        res.render('changePoints', {
+          locals: {
+            'title': title,
+            'header': header,
+            'Users': users,
+            'community':community,
+            'adminPanel': 'yes'
           }
         })
       }
     })
   })
+  })
 })
+
+//action for the route /changePoints
+app.post('/:community/changePointsAction', function(req, res) {
+
+var community = req.params.community,
+title = 'User Points Change Successful',
+header = 'User Points Change Successful',
+points = req.body,
+usernameArray=[], numCorrectArray=[], numSuperbExplanationsArray=[], numTotalArray=[], userObjectArray=[];
+
+
+for(var property in points) {
+  if (property == 'usernameArray'){
+    usernameArray = points[property];
+  }
+  else if (property == 'numCorrectArray'){
+    numCorrectArray = points[property];
+  }
+  else if (property == 'numSuperbExplanationsArray'){
+    numSuperbExplanationsArray = points[property];
+  }
+  else {
+    numTotalArray = points[property];
+  }
+}
+
+//Create an array of user objects
+for (var i = 0; i < usernameArray.length; i++){
+  var userObj = new Object();
+  userObj.username = usernameArray[i];
+  userObj.numCorrect = numCorrectArray[i];
+  userObj.superbExplanations = numSuperbExplanationsArray[i];
+  userObj.numTotal = numTotalArray[i];
+  userObjectArray.push(userObj);
+}
+
+//Delete the old users and then re-insert them with updated points values
+MongoClient.connect(mongoURL, function(err, db){
+  if (err){throw err;}
+  db.createCollection(community+'Users', {w:1}, function(err, collection) {
+    var userCollection = db.collection(community+'Users');
+    //Delete all the current users
+    userCollection.remove(function(err,result){
+      db.createCollection(community+'Users', {w:1}, function(err, collection) {
+      var userCollection = db.collection(community+'Users');
+        //Insert all the users back again
+        userCollection.insert(userObjectArray, {w:1}, function(err, result){
+          if (!err){
+            res.render('success', {
+              locals: {
+                'title': title,
+                'header': header,
+                'successMessage': 'User points have been successfully updated',
+                'community':community,
+                'adminPanel': 'yes'
+              }
+            })
+          }
+        })
+      })      
+    })
+  })
 })
+
+})
+
+
+
 
 //This route allows you to change the debut date of a case
 app.get('/:community/changeCaseDate/:caseID', function(req, res) {
