@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Change User Points | CaseAce</title>
+<% include header.ejs %>
+<% include navbar.ejs %>
+<div class="container">
+
+
+<form action="/<%=community%>/changePointsAction" method="POST">
+<table>
+	<tr>
+		<th>Username</th>
+		<th>Number of Points</th>
+		<th>Number of Superb Explanations</th>
+		<th>Number of Total Possible Points</th>
+	</tr>
+<% Users.forEach(function(User) { %>
+	<tr>
+		<td>
+			<%= User.username %>
+			<input type="hidden" name="usernameArray" value=<%= User.username %>>
+		</td>
+		<td>
+			<input type="number" name="numCorrectArray" value=<%= User.numCorrect %>>
+		</td>
+		<td>
+			<input type="number" name="numSuperbExplanationsArray" value=<%= User.superbExplanations %>>
+		</td>
+		<td>
+			<input type="number" name="numTotalArray" value=<%= User.numTotal %>>
+		</td>
+	</tr>
+<% }); %>
+
+</table>
+
+<input class="btn" type="submit">
+</form>
+
+</div>
+
+
+<% include footer.ejs %>
