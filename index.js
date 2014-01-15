@@ -114,12 +114,7 @@ app.get('/:community/currentcase', function(req, res) {
               mostRecentCaseDate = dateOfCase;
             }
           }
-          console.log('dateOfCase:');
-          console.log(dateOfCase);
         })
-
-          console.log('today:');
-          console.log(today);
         //update the current case to "no" and set this most recent case to "yes"
         collection.findOne({'CurrentCase':'yes'}, function(err, item){
           var Date = mostRecentCase.Date; //set the Date variable
