@@ -944,9 +944,9 @@ for(var property in points) {
 for (var i = 0; i < usernameArray.length; i++){
   var userObj = new Object();
   userObj.username = usernameArray[i];
-  userObj.numCorrect = numCorrectArray[i];
-  userObj.superbExplanations = numSuperbExplanationsArray[i];
-  userObj.numTotal = numTotalArray[i];
+  userObj.numCorrect = parseInt(numCorrectArray[i]);
+  userObj.superbExplanations = parseInt(numSuperbExplanationsArray[i]);
+  userObj.numTotal = parseInt(numTotalArray[i]);
   userObjectArray.push(userObj);
 }
 
