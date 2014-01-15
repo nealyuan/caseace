@@ -98,7 +98,10 @@ app.get('/:community/currentcase', function(req, res) {
           day = parseInt(item.Date.substr(8,10)),
           //dateOfCase is a way to store the item's date in a way to be compared with today
           dateOfCase = new Date();
-          dateOfCase.setFullYear(year,mth-1,day, 0, 0, 0, 0);
+          dateOfCase.setFullYear(year,mth-1,day);
+          dateOfCase.setHours(0);
+          dateOfCase.setMinutes(0);
+          dateOfCase.setSeconds(1);
           if (dateOfCase <= today){
             //if mostRecentCase is still null, store as mostRecentCase
             if (mostRecentCase == null){
@@ -111,7 +114,12 @@ app.get('/:community/currentcase', function(req, res) {
               mostRecentCaseDate = dateOfCase;
             }
           }
+          console.log('dateOfCase:');
+          console.log(dateOfCase);
         })
+
+          console.log('today:');
+          console.log(today);
         //update the current case to "no" and set this most recent case to "yes"
         collection.findOne({'CurrentCase':'yes'}, function(err, item){
           var Date = mostRecentCase.Date; //set the Date variable
