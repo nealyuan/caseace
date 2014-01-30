@@ -115,6 +115,19 @@ app.get('/:community/currentcase', function(req, res) {
             }
           }
         })
+        //if there's no case with a debut date before the current time
+        if (mostRecentCase == null){
+          res.render('error', {
+            locals: {
+              'title': 'Oops!',
+              'header': 'Oops!',
+              'errorMessage': 'Sorry. There is no current case. A case will be deubting soon',
+              'community':community,
+              'adminPanel': 'no'
+            }
+          })
+        }
+        else {
         //update the current case to "no" and set this most recent case to "yes"
         collection.findOne({'CurrentCase':'yes'}, function(err, item){
           var Date = mostRecentCase.Date; //set the Date variable
@@ -169,9 +182,8 @@ app.get('/:community/currentcase', function(req, res) {
               }
             })
           }
-
-
         })
+        }
       }
     })
   })
@@ -1122,5 +1134,37 @@ app.get('/submitCase', function(req, res){
     }
   })
 })
+
+//MailChimp Testing
+app.get('/mailChimp', function(req, res){
+var MailChimpAPI = require('mailchimp').MailChimpAPI;
+var apiKey = '0529398d2e6c28da4b71a760f4e853c1-us3';
+var options = {
+        "list_id": "3e29549d5f", //list ID for Test List
+        "subject": "This is a test email",
+        "from_email": "Neal@CaseAce.org",
+        "from_name": "Neal Yuan",
+        "tracking": {
+            "opens": true,
+            "html_clicks": true,
+            "text_clicks": true
+        },
+    };
+var content = {
+        "html": "<h1>Hello World</h1>"
+    };
+try { 
+    var api = new MailChimpAPI(apiKey, { version : '2.0' });
+} catch (error) {
+    console.log(error.message);
+}
+api.call('campaigns', 'create', {type: "regular", options: options, content: content}, function (error, data){
+    if (error)
+        console.log(error.message);
+    else
+        console.log('success');
+});
+})
+
 
 app.listen(process.env.PORT || 8000);

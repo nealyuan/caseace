@@ -56,7 +56,10 @@
 <p><%- Case.Imaging%><br></p>
 <% } %>
 
+<% if (community != "StanfordMS") { %>
 <p>(Citations to follow in solution)</p>
+<% } %>
+
 
 <% if (Case.Question != "" && Case.Question != "<br>" && Case.Question != null) { %>
 <p><%- Case.Question%></p>
