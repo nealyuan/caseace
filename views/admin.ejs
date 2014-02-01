@@ -8,7 +8,7 @@
 
 <div class="container">
 <p>
-<a style="font-size:24px" href="/<%=community%>/storeCase"><b>Store a new case</b></a><br>
+<a style="font-size:24px" href="/<%=community%>/admin/storeCase"><b>Store a new case</b></a><br>
 </p>
 <hr />
 
@@ -23,16 +23,16 @@
 
 		<tr>
 			<td nowrap style="font-size:10px">
-				<a href="/<%=community%>/viewCase/<%=Case._id%>">View/Edit</a><b>|</b>
+				<a href="/<%=community%>/admin/viewCase/<%=Case._id%>">View/Edit</a><b>|</b>
 			</td>
 			<td nowrap style="font-size:10px">
-				<a href="/<%=community%>/gradeCase/<%=Case._id%>">Grade</a><b>|</b>
+				<a href="/<%=community%>/admin/gradeCase/<%=Case._id%>">Grade</a><b>|</b>
 			</td>
 			<td>
 				<i class="icon-briefcase"></i>  <%= Case.Date %>: <%= Case.Diagnosis %>
 			</td>
 			<td style="font-size:10px">
-				<a href="/<%=community%>/removeCase/<%=Case._id%>">Remove</a>
+				<a href="/<%=community%>/admin/removeCase/<%=Case._id%>">Remove</a>
 			</td>
 		</tr>
 
@@ -52,7 +52,7 @@
 
 <hr />
 <p>
-<a style="font-size:24px" href="/<%=community%>/changePoints"><b>Change User Points</b></a><br>
+<a style="font-size:24px" href="/<%=community%>/admin/changePoints"><b>Change User Points</b></a><br>
 Note: in most cases you should NOT have to use this function.  Only use this if you need to correct points from a misgrading.
 </p>
 

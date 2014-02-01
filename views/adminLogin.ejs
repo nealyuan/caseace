@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Admin Login | CaseAce</title>
+<% include header.ejs %>
+<% include navbar.ejs %>
+
+<div class="container">
+
+<form action="/<%=community%>/adminVerify" method="POST">
+
+	<label class="control-label" for="Username">
+		Username
+	</label>
+	<input type="text" name="Username" required><br>
+
+	<label class="control-label" for="Password">
+		Password
+	</label>
+	<input type="password" name="Password" required><br>
+	
+	<input class="btn" type="submit">
+
+
+</form>
+</div>
+
+<% include footer.ejs %>

@@ -7,6 +7,10 @@ var MongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
 var async = require('async');
 
+//initialize cookie parser and session feature so that we can use req.session object
+app.use(express.cookieParser());
+app.use(express.session({secret: 'secretSauce'}));//secret helps keep the session data more secure
+
 
 //Get necessary environment variables fr heroku in order to login to db
 /*var mongoURL = process.env.MONGOURL;*/
@@ -350,8 +354,90 @@ MongoClient.connect(mongoURL, function(err, db){
 })
 })
 
+
+//For requiring Loging authentication
+function requireLogin(req, res, next) {
+  if (req.session.loggedIn) {
+    next(); // allow the next route to run
+  } else {
+    // require the user to log in
+    res.redirect("/"); // or render a form, etc.
+  }
+}
+
+// Automatically apply the `requireLogin` middleware to all routes starting with `/admin`
+app.all("/:community/admin/*", requireLogin, function(req, res, next) {
+  next(); // if the middleware allowed us to get here,
+          // just move on to the next route handler
+});
+
+
+//Login page
+app.get('/:community/adminLogin', function(req, res) {
+  var community = req.params.community;
+  res.render('adminLogin', {
+          locals: {
+            'title': 'Administrator Login',
+            'header': 'Administrator Login',
+            'community': community,
+            'adminPanel': 'no'
+          }
+        })
+})
+
+//Logout page
+app.get('/:community/adminLogout', function(req, res) {
+  var community = req.params.community;
+  req.session.loggedIn = false;
+  res.render('success', {
+          locals: {
+            'title': 'Logout Successful',
+            'header': 'Logout Successful',
+            'successMessage': 'You have been logged out.',
+            'community':community,
+            'adminPanel': 'no'
+          }
+        })
+})
+
+//Verifies login credentials and authenticates session
+app.post('/:community/adminVerify', function(req, res) {
+
+var community = req.params.community,
+username = req.body.Username.split(" ").join(""), //gets rid of whitespaces between words
+password = req.body.Password;
+
+//connect to database collection "Admins"
+MongoClient.connect(mongoURL, function(err, db){
+  if (err){throw err;}
+  db.createCollection(community+'Admins', {w:1}, function(err, collection) {
+    var adminCollection = db.collection(community+'Admins');
+    //Check to make sure that username and password match and that user has access to the community
+    adminCollection.findOne({'username':username}, function(err, user){
+      if (!user || user.password != password || user.community != community){
+        res.render('error', {
+          locals: {
+            'title': 'Oops!',
+            'header': 'Oops!',
+            'errorMessage': 'Sorry, you are not authorized as an admin for this community or your username and password do not match.',
+            'community':community,
+            'adminPanel': 'no'
+          }
+        })
+      }
+      else {
+        //user is verified, so change req.session.loggedIn to true and redirect to main admin page
+        req.session.loggedIn = true;
+        res.redirect('/' + community + '/admin/main');       
+      }
+    })
+  })
+})
+})
+
+
 //Admin panel
-app.get('/:community/admin', function(req, res) {
+app.get('/:community/admin/main', function(req, res) {
 
   var community = req.params.community,
   title = 'Admin Panel',
@@ -402,7 +488,7 @@ app.get('/:community/admin', function(req, res) {
 
 
 //Store a new case with its answers to the db
-app.get('/:community/storeCase', function(req, res) {
+app.get('/:community/admin/storeCase', function(req, res) {
   
   var community = req.params.community,
   title = 'Store a Case to Database',
@@ -419,7 +505,7 @@ app.get('/:community/storeCase', function(req, res) {
 })
 
 //Action for storing the case from /storeCase
-app.post('/:community/storeCaseAction', function(req, res) {
+app.post('/:community/admin/storeCaseAction', function(req, res) {
 
 var community = req.params.community,
 title = 'Case Storage Successful',
@@ -505,7 +591,7 @@ MongoClient.connect(mongoURL, function(err, db){
 })
 
 //Allows you to view a specific case and make edits to it if you'd like. Searches case by Date, NOT object ID
-app.post('/:community/setViewCaseAction', function(req, res) {
+app.post('/:community/admin/setViewCaseAction', function(req, res) {
 
 var community = req.params.community,
 title = 'View a Case',
@@ -545,7 +631,7 @@ Date = req.body.Date;
 })
 
 //Allows you to edit a specific case
-app.post('/:community/editCaseAction', function(req, res) {  
+app.post('/:community/admin/editCaseAction', function(req, res) {  
   var community = req.params.community,
   title = 'Edit Case',
   header = 'Edit Case',
@@ -571,7 +657,7 @@ app.post('/:community/editCaseAction', function(req, res) {
 })
 
 //This route allows you to view a specific case by Object ID (NOT ID) and then have the option to make edits to it
-app.get('/:community/viewCase/:caseID', function(req, res) {
+app.get('/:community/admin/viewCase/:caseID', function(req, res) {
   
   var community = req.params.community,
   caseID = req.params.caseID,
@@ -611,7 +697,7 @@ app.get('/:community/viewCase/:caseID', function(req, res) {
 })
 
 //This route allows you to make a case the Current Case
-app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
+app.get('/:community/admin/makeCurrentCase/:caseID', function(req, res) {
   
   var community = req.params.community,
   caseID = req.params.caseID,
@@ -692,7 +778,7 @@ app.get('/:community/makeCurrentCase/:caseID', function(req, res) {
 })
 
 //This route allows you to grade the Case
-app.get('/:community/gradeCase/:caseID', function(req, res) {
+app.get('/:community/admin/gradeCase/:caseID', function(req, res) {
   
   var community = req.params.community,
   caseID = req.params.caseID,
@@ -753,7 +839,7 @@ app.get('/:community/gradeCase/:caseID', function(req, res) {
   totalPoints: '2', <-- This is the total number of possible points
   Date: '2014-01-09' } <-- This is the date of the case */
 
-app.post('/:community/gradeAnswersAction', function(req, res) {
+app.post('/:community/admin/gradeAnswersAction', function(req, res) {
 var community = req.params.community,
 responses = req.body, //see structure of req.body above
 usernamesRaw = [],//an array of the usernames that are raw from the response and need to be processed to get rid of "points" and "superbExp" from the end
@@ -890,7 +976,7 @@ MongoClient.connect(mongoURL, function(err, db){
 
 
 //Lists the current points that users have and allows you to make edits.
-app.get('/:community/changePoints', function(req, res) {
+app.get('/:community/admin/changePoints', function(req, res) {
   
   var community = req.params.community,
   title = 'Change User Points',
@@ -928,7 +1014,7 @@ app.get('/:community/changePoints', function(req, res) {
 })
 
 //action for the route /changePoints
-app.post('/:community/changePointsAction', function(req, res) {
+app.post('/:community/admin/changePointsAction', function(req, res) {
 
 var community = req.params.community,
 title = 'User Points Change Successful',
@@ -996,7 +1082,7 @@ MongoClient.connect(mongoURL, function(err, db){
 
 
 //This route allows you to change the debut date of a case
-app.get('/:community/changeCaseDate/:caseID', function(req, res) {
+app.get('/:community/admin/changeCaseDate/:caseID', function(req, res) {
   
   var community = req.params.community,
   caseID = req.params.caseID,
@@ -1036,7 +1122,7 @@ app.get('/:community/changeCaseDate/:caseID', function(req, res) {
 })
 
 //Action for changing the case date from /changeCaseDate
-app.post('/:community/changeCaseDateAction/:caseID', function(req, res) {
+app.post('/:community/admin/changeCaseDateAction/:caseID', function(req, res) {
 
 var community = req.params.community,
 caseID = req.params.caseID,
@@ -1081,7 +1167,7 @@ header = 'Date Changed';
 
 
 //This route asks whether you really want to remove a case
-app.get('/:community/removeCase/:caseID', function(req, res) {
+app.get('/:community/admin/removeCase/:caseID', function(req, res) {
   var community = req.params.community,
   caseID = req.params.caseID,
   title = 'Case Removal',
@@ -1098,7 +1184,7 @@ app.get('/:community/removeCase/:caseID', function(req, res) {
 })
 
 //This route performs the action of removing the case
-app.post('/:community/removeCaseAction', function(req, res) {
+app.post('/:community/admin/removeCaseAction', function(req, res) {
   
   var community = req.params.community,
   caseID = req.body.caseID,

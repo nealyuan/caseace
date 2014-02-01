@@ -1,14 +1,4 @@
-<% if (adminPanel == 'yes') { %>
-<script>
-var password; 
-    var thePassword="groupmed"; 
-    password=prompt('Enter Password',' '); 
-        if (password!=thePassword) {
-            alert('Incorrect password!'); 
-            window.location="http://www.caseace.org"; 
-        }
-</script>
-<% } %>
+
 
 <body>
  <div class="navbar navbar-inverse navbar-fixed-top">
@@ -52,7 +42,10 @@ var password;
                         </li>
                         <% if (adminPanel == 'yes') { %>
                         <li>
-                            <a href="/<%=community%>/admin">Admin Panel</a>
+                            <a href="/<%=community%>/admin/main">Admin Panel</a>
+                        </li>
+                        <li>
+                            <a href="/<%=community%>/adminLogout">Logout</a>
                         </li>
                         <% } %>
 
