@@ -21,10 +21,6 @@
 <p><%- Case.FlexibleText1%></p>
 <% } %>
 
-<% if (Case.FlexibleText2 != "" && Case.FlexibleText2 != "<br>" && Case.FlexibleText2 != null) { %>
-<p><%- Case.FlexibleText2%></p>
-<% } %>
-
 <% if (Case.HPI != "" && Case.HPI != "<br>" && Case.HPI != null) { %>
 <h2>History of Present Illness</h2>
 <p><%- Case.HPI%></p>
@@ -63,6 +59,10 @@
 <% if (Case.Imaging != "" && Case.Imaging != "<br>" && Case.Imaging != null) { %>
 <h2>Imaging</h2>
 <p><%- Case.Imaging%></p>
+<% } %>
+
+<% if (Case.FlexibleText2 != "" && Case.FlexibleText2 != "<br>" && Case.FlexibleText2 != null) { %>
+<p><%- Case.FlexibleText2%></p>
 <% } %>
 
 <% if (Case.Question != "" && Case.Question != "<br>" && Case.Question != null) { %>

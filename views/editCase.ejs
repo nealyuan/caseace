@@ -27,11 +27,6 @@
 	</label>
 	<textarea name="FlexibleText1" cols="100"><%- Case.FlexibleText1 %></textarea><br>
 
-	<label class="control-label" for="FlexibleText2">
-	Flexible Text 2 (Optional)
-	</label>
-	<textarea name="FlexibleText2"><%- Case.FlexibleText2 %></textarea><br>
-
 	<label class="control-label" for="HPI">
 	HPI
 	</label>
@@ -72,6 +67,11 @@
 	</label>
 	<textarea name="Imaging"><%- Case.Imaging %></textarea><br>
 
+	<label class="control-label" for="FlexibleText2">
+	Flexible Text 2 (Optional)
+	</label>
+	<textarea name="FlexibleText2"><%- Case.FlexibleText2 %></textarea><br>
+
 	<label class="control-label" for="Citation">
 	Write a sentence about the source of this case.  E.g. "Thank you to the UCSF medicine chiefs for this case"
 	</label>
@@ -93,9 +93,12 @@
 	</label>
 	<textarea name="FurtherDetails"><%- Case.FurtherDetails %></textarea><br>
 
+<% if (community != "StanfordMS") { %>
+
 	<label class="control-label" for="FirstSolvers">
 	First three users to solve the case
 	</label>
+
 	<textarea name="FirstSolvers"><%- Case.FirstSolvers %></textarea><br>
 	
 	<label class="control-label" for="SuperbExplanations">
@@ -113,9 +116,11 @@
 	</label>
 	<textarea name="StudentExplanation"><%- Case.StudentExplanation %></textarea><br>
 
+<% } %>
 	<label class="control-label" for="KeyPointsExplanation">
 	Key points and explanation for this case
 	</label>
+
 	<textarea name="KeyPointsExplanation"><%- Case.KeyPointsExplanation %></textarea><br>
 
 	<input class="btn" type="submit">
