@@ -1,6 +1,9 @@
 
 
 <body>
+
+
+<body>
  <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
@@ -40,6 +43,7 @@
                         <% } %>
                             <a href="/<%=community%>/pastCasesList">Past Cases</a>
                         </li>
+
                         <% if (adminPanel == 'yes') { %>
                         <li>
                             <a href="/<%=community%>/admin/main">Admin Panel</a>
@@ -50,7 +54,17 @@
                         <% } %>
 
                     </ul>
+                <% if (adminPanel == 'no') { %>
+                    <ul class="nav pull-right">
+                        <li>
+                        <a href="/<%=community%>/adminLogin">Admin Login</a>
+                        </li>
+                    </ul>
+                <% } %>                    
                 </div>
+
+
+
                 <% } %>
             </div>
         </div>

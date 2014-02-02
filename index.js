@@ -357,11 +357,12 @@ MongoClient.connect(mongoURL, function(err, db){
 
 //For requiring Loging authentication
 function requireLogin(req, res, next) {
-  if (req.session.loggedIn) {
+  var community = req.params.community;
+  if (req.session.community == community) {
     next(); // allow the next route to run
   } else {
     // require the user to log in
-    res.redirect("/"); // or render a form, etc.
+    res.redirect("/"+community+"/adminLogin"); // or render a form, etc.
   }
 }
 
@@ -380,21 +381,6 @@ app.get('/:community/adminLogin', function(req, res) {
             'title': 'Administrator Login',
             'header': 'Administrator Login',
             'community': community,
-            'adminPanel': 'no'
-          }
-        })
-})
-
-//Logout page
-app.get('/:community/adminLogout', function(req, res) {
-  var community = req.params.community;
-  req.session.loggedIn = false;
-  res.render('success', {
-          locals: {
-            'title': 'Logout Successful',
-            'header': 'Logout Successful',
-            'successMessage': 'You have been logged out.',
-            'community':community,
             'adminPanel': 'no'
           }
         })
@@ -426,8 +412,8 @@ MongoClient.connect(mongoURL, function(err, db){
         })
       }
       else {
-        //user is verified, so change req.session.loggedIn to true and redirect to main admin page
-        req.session.loggedIn = true;
+        //user is verified, so change req.session.loggedIn[community] to true and redirect to main admin page
+        req.session.community = community;
         res.redirect('/' + community + '/admin/main');       
       }
     })
@@ -435,6 +421,20 @@ MongoClient.connect(mongoURL, function(err, db){
 })
 })
 
+//Logout page
+app.get('/:community/adminLogout', function(req, res) {
+  var community = req.params.community;
+  req.session.community = false;
+  res.render('success', {
+          locals: {
+            'title': 'Logout Successful',
+            'header': 'Logout Successful',
+            'successMessage': 'You have been logged out.',
+            'community':community,
+            'adminPanel': 'no'
+          }
+        })
+})
 
 //Admin panel
 app.get('/:community/admin/main', function(req, res) {
