@@ -41,12 +41,21 @@ app.get('/', function(req, res) {
   })
 })
 
+
 //Displays leaderboard by retrieving scores from MongoDB collection Users and feeding the users and scores to a D3 file called leaderboard.js called through the leaderboard.ejs view
 app.get('/:community/leaderboard', function(req, res) {
   
   var community = req.params.community,
   title = 'Leader Board',
   header = 'Leader Board';
+  
+  if (community == 'UCSFBMB' || community == 'UCSFMS1s'){
+    if (req.session.community != community) {
+    // redirect to current case
+    res.redirect("/"+community+"/currentcase"); 
+    }
+  }
+
   //Retrieve all of the individual scores from MongoDB in the collection Users
   MongoClient.connect(mongoURL, function(err, db){
   if (err){throw err;}
@@ -125,7 +134,7 @@ app.get('/:community/currentcase', function(req, res) {
             locals: {
               'title': 'Oops!',
               'header': 'Oops!',
-              'errorMessage': 'Sorry. There is no current case. A case will be deubting soon',
+              'errorMessage': 'Sorry. There is no current case. A case will be debuting soon',
               'community':community,
               'adminPanel': 'no'
             }
@@ -372,7 +381,6 @@ app.all("/:community/admin/*", requireLogin, function(req, res, next) {
           // just move on to the next route handler
 });
 
-
 //Login page
 app.get('/:community/adminLogin', function(req, res) {
   var community = req.params.community;
@@ -484,6 +492,32 @@ app.get('/:community/admin/main', function(req, res) {
     })
   })
   })   
+})
+
+//Same as leaderboard but is only available to admins
+app.get('/:community/admin/pointTally', function(req, res) {
+  
+  var community = req.params.community,
+  title = 'Point Tally',
+  header = 'Point Tally';
+  
+  //Retrieve all of the individual scores from MongoDB in the collection Users
+  MongoClient.connect(mongoURL, function(err, db){
+  if (err){throw err;}
+  db.collection(community+'Users', function(err, collection) { //returns the collection 'Users'
+      collection.find().toArray(function(err, users) { //users is an array of objects, each object is a user and their scores
+        res.render('leaderboard', {
+          locals: {
+            'title': title,
+            'header': header,
+            'users': JSON.stringify(users), //we need to take the array of objects and turn it into JSON
+            'community':community,
+            'adminPanel': 'yes'
+          }
+        })
+      })
+    })
+  })
 })
 
 

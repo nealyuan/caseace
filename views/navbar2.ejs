@@ -1,9 +1,6 @@
 
 
 <body>
-
-
-<body>
  <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
@@ -16,7 +13,7 @@
                 <% if (header != 'CaseAce' && header != 'I\'ve got a case!') { %>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <% if (community != 'UCSFMS1s' && community != 'DukeMS' && community != 'StanfordMS' && community != 'UCSFBMB') { %>
+                        <% if (community != 'UCSFMS1s' && community != 'DukeMS' && community != 'StanfordMS') { %>
                             <% if (header == 'Leader Board') { %>
                             <li class="active">
                             <% }
@@ -43,7 +40,11 @@
                         <% } %>
                             <a href="/<%=community%>/pastCasesList">Past Cases</a>
                         </li>
-
+                        <% if (adminPanel == 'no') { %>
+                        <li>
+                            <a href="/<%=community%>/admin/main">Admin Panel</a>
+                        </li>
+                        <% } %>
                         <% if (adminPanel == 'yes') { %>
                         <li>
                             <a href="/<%=community%>/admin/main">Admin Panel</a>
@@ -54,14 +55,15 @@
                         <% } %>
 
                     </ul>
-                <% if (adminPanel == 'no') { %>
-                    <ul class="nav pull-right">
-                        <li>
-                        <a href="/<%=community%>/adminLogin">Admin Login</a>
-                        </li>
+
+                    <ul class="nav navbar-nav navbar-right">
+                    <li><a href="./">Default</a></li>
+                    
                     </ul>
-                <% } %>                    
                 </div>
+
+
+
 
 
 
