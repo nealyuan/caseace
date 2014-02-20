@@ -399,7 +399,8 @@ app.post('/:community/adminVerify', function(req, res) {
 
 var community = req.params.community,
 username = req.body.Username.split(" ").join(""), //gets rid of whitespaces between words
-password = req.body.Password;
+password = req.body.Password,
+redirectToWhere = req.body.redirectToWhere;
 
 //connect to database collection "Admins"
 MongoClient.connect(mongoURL, function(err, db){
@@ -420,9 +421,10 @@ MongoClient.connect(mongoURL, function(err, db){
         })
       }
       else {
-        //user is verified, so change req.session.loggedIn[community] to true and redirect to main admin page
+        //user is verified, so change req.session.community to the community and req.sesion.username to the username
         req.session.community = community;
-        res.redirect('/' + community + '/admin/main');       
+        req.session.username = username;
+        res.redirect('/' + community + redirectToWhere);       
       }
     })
   })
@@ -494,32 +496,75 @@ app.get('/:community/admin/main', function(req, res) {
   })   
 })
 
-//Same as leaderboard but is only available to admins
-app.get('/:community/admin/pointTally', function(req, res) {
-  
-  var community = req.params.community,
-  title = 'Point Tally',
-  header = 'Point Tally';
-  
-  //Retrieve all of the individual scores from MongoDB in the collection Users
-  MongoClient.connect(mongoURL, function(err, db){
-  if (err){throw err;}
-  db.collection(community+'Users', function(err, collection) { //returns the collection 'Users'
-      collection.find().toArray(function(err, users) { //users is an array of objects, each object is a user and their scores
-        res.render('leaderboard', {
+//Login to view and make changes to admin profile
+app.get('/:community/admin/adminProfileLogin', function(req, res) {
+  var community = req.params.community;
+  res.render('adminProfileLogin', {
           locals: {
-            'title': title,
-            'header': header,
-            'users': JSON.stringify(users), //we need to take the array of objects and turn it into JSON
-            'community':community,
-            'adminPanel': 'yes'
+            'title': 'Verify Admin Login',
+            'header': 'Verify Admin Login',
+            'community': community,
+            'adminPanel': 'no'
           }
         })
+})
+
+//View and make changes to admin profile
+app.get('/:community/admin/adminProfile', function(req, res) {
+  var community = req.params.community;
+  //connect to database collection "Admins"
+  MongoClient.connect(mongoURL, function(err, db){
+    if (err){throw err;}
+    db.createCollection(community+'Admins', {w:1}, function(err, collection) {
+      var adminCollection = db.collection(community+'Admins');
+      //Pull up admin's info and display it
+      adminCollection.findOne({'username':req.session.username}, function(err, user){
+        if (!err){
+          res.render('adminProfile', {
+            locals: {
+              'title': 'My Profile',
+              'header': 'My Profile',
+              'user': user,
+              'community':community,
+              'adminPanel': 'yes'
+            }
+          })
+        }
       })
     })
   })
 })
 
+//Changes password in database
+app.get('/:community/admin/changePassword', function(req, res) {
+  var community = req.params.community,
+  oldPassword = req.body.oldPassword,
+  newPassword = req.body.newPassword;
+
+  //connect to database collection "Admins"
+  MongoClient.connect(mongoURL, function(err, db){
+    if (err){throw err;}
+    db.createCollection(community+'Admins', {w:1}, function(err, collection) {
+      var adminCollection = db.collection(community+'Admins');
+      //find the correct username
+      adminCollection.findOne({'username':req.session.username}, function(err, user){
+        if(oldPassword == user.password) {
+          collection.update({'user.password': newPassword}, {$set:{'Date':Date}}, {w:1}, function(err, result){
+            res.render('caseStoreSuccess', {
+              locals: {
+                'title': title,
+                'header': header,
+                'Date': Date,
+                'community': community,
+                'adminPanel': 'yes'
+              }
+            })
+          })
+        }
+      })
+    })
+  })
+})
 
 //Store a new case with its answers to the db
 app.get('/:community/admin/storeCase', function(req, res) {
@@ -1007,6 +1052,33 @@ MongoClient.connect(mongoURL, function(err, db){
   })
   })
 })
+
+//Same as leaderboard but is only available to admins
+app.get('/:community/admin/pointTally', function(req, res) {
+  
+  var community = req.params.community,
+  title = 'Point Tally',
+  header = 'Point Tally';
+  
+  //Retrieve all of the individual scores from MongoDB in the collection Users
+  MongoClient.connect(mongoURL, function(err, db){
+  if (err){throw err;}
+  db.collection(community+'Users', function(err, collection) { //returns the collection 'Users'
+      collection.find().toArray(function(err, users) { //users is an array of objects, each object is a user and their scores
+        res.render('leaderboard', {
+          locals: {
+            'title': title,
+            'header': header,
+            'users': JSON.stringify(users), //we need to take the array of objects and turn it into JSON
+            'community':community,
+            'adminPanel': 'yes'
+          }
+        })
+      })
+    })
+  })
+})
+
 
 
 //Lists the current points that users have and allows you to make edits.
