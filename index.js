@@ -536,7 +536,7 @@ app.get('/:community/admin/adminProfile', function(req, res) {
 })
 
 //Changes password in database
-app.get('/:community/admin/changePassword', function(req, res) {
+app.post('/:community/admin/changePassword', function(req, res) {
   var community = req.params.community,
   oldPassword = req.body.oldPassword,
   newPassword = req.body.newPassword;
@@ -549,11 +549,11 @@ app.get('/:community/admin/changePassword', function(req, res) {
       //find the correct username
       adminCollection.findOne({'username':req.session.username}, function(err, user){
         if(oldPassword == user.password) {
-          collection.update({'user.password': newPassword}, {$set:{'Date':Date}}, {w:1}, function(err, result){
+          collection.update({'username': req.session.username}, {$set:{'password':newPassword}}, {w:1}, function(err, result){
             res.render('caseStoreSuccess', {
               locals: {
-                'title': title,
-                'header': header,
+                'title': 'Password changed',
+                'header': 'Password changed',
                 'Date': Date,
                 'community': community,
                 'adminPanel': 'yes'
