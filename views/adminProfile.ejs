@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Admin Profile | CaseAce</title>
+<% include header.ejs %>
+<% include navbar.ejs %>
+
+<div class="container">
+
+<p><h2><%= user.username %></h2></p>
+
+<p><b>Email:</b> <%= user.email %></p>
+
+<p><b>Change Password</b>
+<form action="/<%=community%>/admin/changePassword" method="POST">
+	<label class="control-label" for="oldPassword">
+		Old Password
+	</label>
+	<input type="password" name="oldPassword" required><br>
+	<label class="control-label" for="newPassword">
+		New Password
+	</label>
+	<input type="password" name="newPassword" required><br>	
+	<input class="btn" type="submit">
+</form>
+</p>
+
+</div>
+
+
+    <script type="text/javascript">
+/*      $(document).ready(function(){
+        $('#changePass').click(function(){
+          $(this).html("<p>Stuff!</p>"); 
+        })
+    })*/
+    </script>
+
+<% include footer.ejs %>
+
+

@@ -1,0 +1,31 @@
+<div class="container">
+
+<form action="/<%=community%>/storeAnswerAction" method="POST">
+
+	<label class="control-label" for="Username">
+		Username 
+	</label>
+	<input type="text" name="Username" required><br>
+
+	<label class="control-label" for="Email">
+	</label>
+	<input type="hidden" name="Email" value=" ">
+
+	<label class="control-label" for="DiagnosisAnswer">
+	</label>
+	<input type="hidden" name="DiagnosisAnswer" value=" ">
+
+	<label class="control-label" for="Explanation">
+		Answer
+	</label>
+	<textarea name="Explanation"></textarea><br>
+
+	<label class="control-label" for = "Date">
+	</label>
+	<input type="hidden" name="Date" value=<%- Case.Date %>>
+	
+	<input class="btn" type="submit">
+
+
+</form>
+</div>
