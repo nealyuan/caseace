@@ -13,11 +13,16 @@
 <table border="1">
 	<tr>
 		<td><b>Username</b></td>
+		<% if (community != "StanfordMS") { %>
 		<td><b>Diagnosis</b></td>
+		<% } %> 
 		<td><b>Explanation</b></td>
+
+		<% if (community != "StanfordMS") { %>
 		<td><b>Score</b></td>
 		<td><b>Superb Explanation? (1 for yes)</b></td>
 		<td><b>Explanation Excerpt for Answer Page</b></td>
+		<% } %> 
 	</tr>
 
 <% for (var i = 0; i < Answers.length; i++) { %>
@@ -25,8 +30,14 @@
 	<% var usernameSuperbExp = Answers[i].username + "superbExp"; %>
 	<tr>
 	  <td><%= Answers[i].username %></td>
+	  
+	  <% if (community != "StanfordMS") { %>
 	  <td><%- Answers[i].diagnosisAnswer %></td>
+	  <% } %> 
+	  
 	  <td><%- Answers[i].explanation %></td>
+
+	 <% if (community != "StanfordMS") { %>
 	<td>
 		<input style="text-align:center;" type="number" name=<%= usernamePoints %> size="20" min="0" value="0">
 	</td>
@@ -35,12 +46,15 @@
 	</td>
 	<td style="min-width:250px;">
 		<textarea name="displayExplanations"></textarea>
-	</td>	
+	</td>
+ 	<% } %> 
+
 	</tr>
 <% } %>
 
 </table>
 
+		<% if (community != "StanfordMS") { %>
 		<label class="control-label" for="totalPoints">
 		How many total points were possible?
 		</label>
@@ -49,6 +63,7 @@
 		<input type="hidden" name="Date" value=<%= Date %>>
 		<br>
 		<input class="btn" type="submit">
+		<% } %>
 </form>
 </div>
 
