@@ -14,17 +14,34 @@
 	</label>
 	<input type="text" name="Email" required><br>
 
+<% if (community == 'UCSFMS1s') { %>
+	<label class="control-label" for="DiagnosisAnswer">
+	</label>
+	<input type="hidden" name="DiagnosisAnswer" value=" ">
+    <% }
+    else { %>
 	<label class="control-label" for="DiagnosisAnswer">
 		What is the most likely answer?
 		<span style="color:#C0C0C0">(Please specify one answer only.)</span>
 	</label>
 	<input type="text" name="DiagnosisAnswer"><br>
+          <% } %>
 
+
+<% if (community == 'UCSFMS1s') { %>
+	<label class="control-label" for="Explanation">
+		Answers and Explanations 
+		<span style="color:#C0C0C0">(We'll pick the best explanations and post them for each week)</span>
+	</label>
+	<textarea name="Explanation"></textarea><br>
+    <% }
+    else { %>
 	<label class="control-label" for="Explanation">
 		Explanation 
 		<span style="color:#C0C0C0">(We'll pick the best explanations and post them for each week)</span>
 	</label>
 	<textarea name="Explanation"></textarea><br>
+          <% } %>
 
 	<label class="control-label" for = "Date">
 	</label>
